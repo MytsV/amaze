@@ -1,0 +1,15 @@
+{
+  "name": "server",
+  "version": "0.1.0",
+  "scripts": {
+    "start": "node app.js",
+    "test": "mocha --reporter spec"
+  },
+  "dependencies": {
+    "express": "~4.16.1"
+  },
+  "devDependencies": {
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0"
+  }
+}
