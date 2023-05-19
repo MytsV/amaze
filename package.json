@@ -1,0 +1,16 @@
+{
+  "name": "amaze",
+  "version": "0.1.0",
+  "scripts": {
+    "lint-check": "eslint {client,libs,server} --resolve-plugins-relative-to .",
+    "lint-fix": "eslint {client,libs,server} --resolve-plugins-relative-to . --fix"
+  },
+  "devDependencies": {
+    "eslint": "^8.40.0",
+    "eslint-config-google": "^0.14.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-n": "^15.7.0",
+    "eslint-plugin-promise": "^6.1.1",
+    "eslint-plugin-react": "^7.32.2"
+  }
+}
