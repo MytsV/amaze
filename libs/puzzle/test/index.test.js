@@ -1,6 +1,6 @@
-const { describe } = require('mocha');
+const {describe} = require('mocha');
 
 describe('Always passing test', () => {
   it('Always passes', () => {
-  })
+  });
 });

@@ -1,8 +1,10 @@
+import React from 'react';
+
 function App() {
   return (
-      <p>
+    <p>
         Hello world!
-      </p>
+    </p>
   );
 }
 
