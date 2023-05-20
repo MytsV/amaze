@@ -2,8 +2,8 @@
   "name": "amaze",
   "version": "0.1.0",
   "scripts": {
-    "lint-check": "eslint {client,libs,server} --resolve-plugins-relative-to .",
-    "lint-fix": "eslint {client,libs,server} --resolve-plugins-relative-to . --fix"
+    "lint-check": "eslint ./client --resolve-plugins-relative-to . && eslint ./server && eslint ./libs",
+    "lint-fix": "eslint ./client --resolve-plugins-relative-to . --fix && eslint ./server --fix && eslint ./libs --fix"
   },
   "devDependencies": {
     "eslint": "^8.40.0",
