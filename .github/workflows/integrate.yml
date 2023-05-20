@@ -1,0 +1,41 @@
+name: Build, test and format check a Node.js MERN app
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  integrate:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16.x"
+      - name: Install linter dependencies
+        run: npm ci
+      - name: Check format
+        run: npm run lint-check
+      - name: Integrate client
+        working-directory: ./client
+        run: |
+          npm ci
+          npm run build --if-present
+          npm test
+      - name: Integrate server
+        working-directory: ./server
+        run: |
+          npm ci
+          npm run build --if-present
+          npm test
+      - name: Integrate libs
+        working-directory: ./libs/puzzle
+        run: |
+          npm ci
+          npm run build --if-present
+          npm test
