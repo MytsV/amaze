@@ -6,8 +6,10 @@
     "test": "mocha --reporter spec"
   },
   "dependencies": {
+    "cors": "^2.8.5",
     "dotenv": "^16.0.3",
-    "express": "~4.16.1"
+    "express": "~4.16.1",
+    "mongoose": "^7.2.0"
   },
   "devDependencies": {
     "chai": "^4.3.7",
