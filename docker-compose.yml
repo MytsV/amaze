@@ -1,0 +1,45 @@
+version: '3.8'
+services:
+  mongodb:
+    image: mongo:6-jammy
+    ports:
+      - '40002:27017'
+    networks:
+      - shared-network
+    volumes:
+      - db-data:/data/db
+
+  server:
+    build:
+      context: server
+      dockerfile: Dockerfile
+    env_file:
+      - .env.production
+    ports:
+      - '40001:40001'
+    depends_on:
+      - mongodb
+    command: sh -c './bin/wait-for.sh mongodb:27017 -- npm run start:prod'
+    networks:
+      - shared-network
+    restart: unless-stopped
+
+  client:
+    build:
+      context: client
+      dockerfile: Dockerfile
+    env_file:
+      - .env.production
+    ports:
+      - '40000:40000'
+    depends_on:
+      - mongodb
+    networks:
+      - shared-network
+    restart: unless-stopped
+
+networks:
+  shared-network:
+
+volumes:
+  db-data:

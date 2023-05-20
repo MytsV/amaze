@@ -1,5 +1,5 @@
 #!/bin/sh
 
-source ../.env
+source ../.env.$NODE_ENV
 
-PORT=$CLIENT_PORT REACT_APP_SERVER_PATH=http://localhost:$SERVER_PORT npx react-scripts start
+PORT=$CLIENT_PORT REACT_APP_SERVER_PATH=$SERVER_URL npx react-scripts start

@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-require('dotenv').config({path: '../.env'});
+require('dotenv').config({path: `../.env.${process.env.NODE_ENV}`});
 const Model = require('./database');
 
 const app = express();
