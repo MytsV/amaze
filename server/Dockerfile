@@ -1,14 +1,11 @@
 FROM node:16-alpine
 
 WORKDIR /src
-COPY .env.production /src/
-
-WORKDIR /src/app
-COPY package.json package-lock.json /src/app/
+COPY package.json package-lock.json /src/
 RUN npm install
 
-COPY . /src/app/
+COPY . /src/
 
 EXPOSE ${SERVER_PORT}
 
-CMD ["npm", "run", "start:prod"]
+CMD ["npm", "run", "start"]
