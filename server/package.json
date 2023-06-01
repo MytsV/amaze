@@ -2,8 +2,7 @@
   "name": "server",
   "version": "0.1.0",
   "scripts": {
-    "start": "NODE_ENV=development node app.js",
-    "start:prod": "NODE_ENV=production node app.js",
+    "start": "./start.sh",
     "test": "mocha --reporter spec"
   },
   "dependencies": {
