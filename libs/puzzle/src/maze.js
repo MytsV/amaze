@@ -1,5 +1,10 @@
-/** A wrapper for any positions on a Maze. **/
-class Coordinate {
+/** A wrapper for any position on a Maze. **/
+class Position {
+  /**
+   * @constructor
+   * @param {number} x
+   * @param {number} y
+   */
   constructor(x, y) {
     Object.assign(this, {x, y});
   }
@@ -47,11 +52,11 @@ class Maze {
     }
     const endpoint = this.endpoints.find((el) => el.x === x && el.y === y);
     if (endpoint) {
-      throw Error('The argument coordinates coincide with an endpoint');
+      throw Error('The argument position coincides with an endpoint');
     }
     const existing = this.origins.find((el) => el.x === x && el.y === y);
     if (!existing) {
-      this.origins.push(new Coordinate(x, y));
+      this.origins.push(new Position(x, y));
     }
   }
 
@@ -75,13 +80,13 @@ class Maze {
     }
     const origin = this.origins.find((el) => el.x === x && el.y === y);
     if (origin) {
-      throw Error('The argument coordinates coincide with an origin');
+      throw Error('The argument position coincides with an origin');
     }
     const existing = this.endpoints.find((el) => el.x === x && el.y === y);
     if (!existing) {
-      this.endpoints.push(new Coordinate(x, y));
+      this.endpoints.push(new Position(x, y));
     }
   }
 }
 
-module.exports = {Maze, Coordinate};
+module.exports = {Maze, Position};
