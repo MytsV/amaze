@@ -10,6 +10,9 @@ class Coordinate {
  * ORIGINS
  * - "Entrances", vertices which a solution can begin from.
  * - Represented as an array of points on the Maze.
+ * ENDPOINTS
+ * - "Exits", vertices which a solution can end on.
+ * - Represented as an array of points on the Maze.
  */
 class Maze {
   /**
@@ -36,6 +39,7 @@ class Maze {
   |        |       |
   (0,0)--(1,0)--(2,0)
    */
+  /** Correctly includes a new maze origin. */
   setOrigin({x, y}) {
     if (x < 0 || y < 0 || x > this.width || y > this.height) {
       throw Error('x and y should be in [0, width/height + 1) range');
@@ -43,6 +47,30 @@ class Maze {
     const existing = this.origins.find((el) => el.x === x && el.y === y);
     if (!existing) {
       this.origins.push(new Coordinate(x, y));
+    }
+  }
+
+  /*
+  Endpoint numeration looks as follows for 2x2 maze:
+  (0,2)--(1,2)--(2,2)
+  |        |       |
+  (0,1)----X----(2,1)
+  |        |       |
+  (0,0)--(1,0)--(2,0)
+   */
+  /** Correctly includes a new maze endpoint. */
+  setEndpoint({x, y}) {
+    if (x < 0 || y < 0 || x > this.width || y > this.height) {
+      throw Error('x and y should be in [0, width/height + 1) range');
+    }
+    const xOuter = x === 0 || x === this.width;
+    const yOuter = y === 0 || y === this.height;
+    if (!xOuter && !yOuter) {
+      throw Error('The argument is not an outer vertex');
+    }
+    const existing = this.endpoints.find((el) => el.x === x && el.y === y);
+    if (!existing) {
+      this.endpoints.push(new Coordinate(x, y));
     }
   }
 }
