@@ -1,11 +1,16 @@
-/** A wrapper for positions on Maze. **/
+/** A wrapper for any positions on a Maze. **/
 class Coordinate {
   constructor(x, y) {
     Object.assign(this, {x, y});
   }
 }
 
-/** An abstract class which defines structure of any maze. **/
+/**
+ * An abstract class which defines the structure of any maze.
+ * ORIGINS
+ * - "Entrances", vertices which a solution can begin from.
+ * - Represented as an array of points on the Maze.
+ */
 class Maze {
   /**
    * Creates a maze with width * height cells.
@@ -23,6 +28,14 @@ class Maze {
     this.modifiers = {};
   }
 
+  /*
+  Origin numeration looks as follows for 2x2 maze:
+  (0,2)--(1,2)--(2,2)
+  |        |       |
+  (0,1)--(1,1)--(2,1)
+  |        |       |
+  (0,0)--(1,0)--(2,0)
+   */
   setOrigin({x, y}) {
     if (x < 0 || y < 0 || x > this.width || y > this.height) {
       throw Error('x and y should be in [0, width/height + 1) range');
