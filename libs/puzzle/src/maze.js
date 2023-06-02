@@ -21,8 +21,8 @@ class Maze {
    * @param {number} height - cell count per y axis.
    */
   constructor(width, height) {
-    if (width < 0 || height < 0) {
-      throw Error('Cell count can\'t be negative');
+    if (width <= 0 || height <= 0) {
+      throw Error('Cell count can\'t be negative or zero');
     }
     Object.assign(this, {width, height});
     this.origins = [];

@@ -22,18 +22,25 @@ describe('Maze', () => {
   };
 
   describe('new Maze(width, height)', () => {
+    const errorMsg = 'Cell count can\'t be negative or zero';
     it('Successfully creates a Maze', () => {
       const size = 5;
       const maze = new Maze(size, size);
       expect(maze.width).to.equal(size);
       expect(maze.height).to.equal(size);
     });
-    it('Fails if arguments are negative', () => {
+    it('Fails if either argument is negative', () => {
       const size = -1;
       const errorMsg = 'Cell count can\'t be negative';
       let fn = () => new Maze(size, size);
       expect(fn).to.throw(errorMsg);
       fn = () => new Maze(-size, size);
+      expect(fn).to.throw(errorMsg);
+    });
+    it('Fails if either argument is zero', () => {
+      let fn = () => new Maze(1, 0);
+      expect(fn).to.throw(errorMsg);
+      fn = () => new Maze(0, 1);
       expect(fn).to.throw(errorMsg);
     });
   });
