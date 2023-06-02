@@ -13,6 +13,7 @@ class Coordinate {
  * ENDPOINTS
  * - "Exits", vertices which a solution can end on.
  * - Represented as an array of points on the Maze.
+ * ORIGINS and ENDPOINTS cannot coincide.
  */
 class Maze {
   /**
@@ -44,6 +45,10 @@ class Maze {
     if (x < 0 || y < 0 || x > this.width || y > this.height) {
       throw Error('x and y should be in [0, width/height + 1) range');
     }
+    const endpoint = this.endpoints.find((el) => el.x === x && el.y === y);
+    if (endpoint) {
+      throw Error('The argument coordinates coincide with an endpoint');
+    }
     const existing = this.origins.find((el) => el.x === x && el.y === y);
     if (!existing) {
       this.origins.push(new Coordinate(x, y));
@@ -67,6 +72,10 @@ class Maze {
     const yOuter = y === 0 || y === this.height;
     if (!xOuter && !yOuter) {
       throw Error('The argument is not an outer vertex');
+    }
+    const origin = this.origins.find((el) => el.x === x && el.y === y);
+    if (origin) {
+      throw Error('The argument coordinates coincide with an origin');
     }
     const existing = this.endpoints.find((el) => el.x === x && el.y === y);
     if (!existing) {

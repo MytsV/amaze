@@ -57,6 +57,17 @@ describe('Maze', () => {
     it('Fails if the coordinate is out of bounds', () => {
       testRange((maze, coords) => maze.setOrigin(coords));
     });
+    it('Fails if there is an identical endpoint', () => {
+      const errorMsg = 'The argument coordinates coincide with an endpoint';
+      const size = 1;
+      const coords = new Coordinate(size, size);
+      const maze = new Maze(size, size);
+      maze.setEndpoint(coords);
+      expect(() => maze.setOrigin(coords)).to.throw(errorMsg);
+      // Should not fail if there is no such endpoint
+      const newCoords = new Coordinate(0, 0);
+      expect(() => maze.setOrigin(newCoords)).to.not.throw(errorMsg);
+    });
   });
   describe('setEndpoint({x, y})', () => {
     it('Appends endpoint with the same coordinates only once', () => {
@@ -86,6 +97,17 @@ describe('Maze', () => {
 
       // (0, 1) is an outer edge and should not lead to an Error
       expect(() => maze.setEndpoint(new Coordinate(0, 1))).to.not.throw(Error);
+    });
+    it('Fails if there is an identical origin', () => {
+      const errorMsg = 'The argument coordinates coincide with an origin';
+      const size = 1;
+      const coords = new Coordinate(size, size);
+      const maze = new Maze(size, size);
+      maze.setOrigin(coords);
+      expect(() => maze.setEndpoint(coords)).to.throw(errorMsg);
+      // Should not fail if there is no such origin
+      const newCoords = new Coordinate(0, 0);
+      expect(() => maze.setEndpoint(newCoords)).to.not.throw(errorMsg);
     });
   });
 });
