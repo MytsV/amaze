@@ -1,4 +1,4 @@
-/** A wrapper for any position on a Maze. **/
+/** A wrapper for any position on a Maze. */
 class Position {
   /**
    * @constructor
@@ -10,19 +10,18 @@ class Position {
   }
 }
 
-/**
- * An abstract class which defines the structure of any maze.
- * ORIGINS
- * - "Entrances", vertices which a solution can begin from.
- * - Represented as an array of points on the Maze.
- * ENDPOINTS
- * - "Exits", vertices which a solution can end on.
- * - Represented as an array of points on the Maze.
- * ORIGINS and ENDPOINTS cannot coincide.
+/*
+ ORIGINS
+ - "Entrances", vertices which a solution can begin from.
+ ENDPOINTS
+ - "Exits", vertices which a solution can end on.
+ ORIGINS and ENDPOINTS cannot coincide.
  */
+/** An abstract class which defines the structure of any maze. */
 class Maze {
   /**
    * Creates a maze with width * height cells.
+   * @constructor
    * @param {number} width - cell count per x axis.
    * @param {number} height - cell count per y axis.
    */
@@ -45,7 +44,10 @@ class Maze {
   |        |       |
   (0,0)--(1,0)--(2,0)
    */
-  /** Correctly includes a new maze origin. */
+  /**
+   * Correctly includes a new maze origin.
+   * @param {Position} position
+   */
   setOrigin({x, y}) {
     if (x < 0 || y < 0 || x > this.width || y > this.height) {
       throw Error('x and y should be in [0, width/height + 1) range');
@@ -68,7 +70,10 @@ class Maze {
   |        |       |
   (0,0)--(1,0)--(2,0)
    */
-  /** Correctly includes a new maze endpoint. */
+  /**
+   * Correctly includes a new maze endpoint.
+   * @param {Position} position
+   */
   setEndpoint({x, y}) {
     if (x < 0 || y < 0 || x > this.width || y > this.height) {
       throw Error('x and y should be in [0, width/height + 1) range');
