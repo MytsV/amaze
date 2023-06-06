@@ -1,0 +1,21 @@
+#!/bin/sh
+
+HAS_ISSUES=0
+
+for file in $(git diff --name-only --staged); do
+  if [[ -f $file && $file == *.js ]]; then
+      npx eslint $file
+      if [ $? -ne 0 ]; then
+          HAS_ISSUES=1
+      fi
+  fi
+done
+
+if [ $HAS_ISSUES -eq 0 ]; then
+  exit 0
+fi
+
+RED='\033[0;31m'
+NC='\033[0m'
+echo "${RED}Bad girl.${NC} The code you're trying to commit has formatting issues."
+exit 1
