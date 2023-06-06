@@ -10,12 +10,21 @@ class Position {
   }
 }
 
+const EdgeType = {
+  // Edge is Solid by default
+  Solid: undefined,
+  Disrupt: 'disrupt',
+  Absent: 'absent',
+};
+
 /*
  ORIGINS
  - "Entrances", vertices which a solution can begin from.
  ENDPOINTS
  - "Exits", vertices which a solution can end on.
  ORIGINS and ENDPOINTS cannot coincide.
+ EDGES
+ - Straight lines, connecting vertices. Can be either horizontal or vertical
  */
 /** An abstract class which defines the structure of any maze. */
 class Maze {
@@ -92,6 +101,36 @@ class Maze {
       this.endpoints.push(new Position(x, y));
     }
   }
+
+  /*
+  Edge numeration looks as follows for 2x2 maze:
+  X--(0,4)--X--(1,4)--X
+  |         |         |
+(0,3)     (1,3)     (2,3)
+  |         |         |
+  X--(0,2)--X--(1,2)--X
+  |         |         |
+(0,1)     (1,1)     (2,1)
+  |         |         |
+  X--(0,0)--X--(1,0)--X
+   */
+  /**
+   * Updates the edge type on position {x, y}
+   * @param {Position} position
+   * @param {EdgeType} type
+   */
+  setEdge({x, y}, type) {
+    if (x < 0 || y < 0 || y > this.height * 2) {
+      throw Error('x and y should be >= 0, y should not exceed height * 2');
+    }
+    // If edge is horizontal
+    if (y % 2 === 0 && x >= this.width) {
+      throw Error('x should not be less than the width of maze');
+    } else if (y % 2 !== 0 && x > this.width) { // If edge is vertical
+      throw Error('x should not exceed width');
+    }
+    this.edgeTypes[{x, y}] = type;
+  }
 }
 
-module.exports = {Maze, Position};
+module.exports = {Maze, Position, EdgeType};
