@@ -3,17 +3,6 @@ const {Maze, EdgeType} = require('../src/maze');
 const Position = require('../src/position');
 const {expect} = require('chai');
 
-describe('Position', () => {
-  describe('new Position(x, y)', () => {
-    it('Successfully creates a Position object', () => {
-      const [x, y] = [0, 0];
-      const pos = new Position(x, y);
-      expect(pos.x).to.equal(x);
-      expect(pos.y).to.equal(y);
-    });
-  });
-});
-
 describe('Maze', () => {
   const testRange = (fn) => {
     const w = 1;
@@ -142,9 +131,21 @@ describe('Maze', () => {
       const pos = new Position(x, y);
       const maze = new Maze(x, y);
       // Edge type must be solid by default
-      expect(maze.edgeTypes[pos]).to.equal(EdgeType.Solid);
+      expect(maze.edgeTypes[pos.toKey()]).to.equal(EdgeType.Solid);
       maze.updateEdge(pos, EdgeType.Absent);
-      expect(maze.edgeTypes[pos]).to.equal(EdgeType.Absent);
+      expect(maze.edgeTypes[pos.toKey()]).to.equal(EdgeType.Absent);
+    });
+
+    it('Updates type separately for different positions', () => {
+      const x = 1;
+      const y = 1;
+      const posOne = new Position(x, y);
+      const posTwo = new Position(0, 0);
+      const maze = new Maze(x, y);
+      maze.updateEdge(posOne, EdgeType.Absent);
+      maze.updateEdge(posTwo, EdgeType.Disrupt);
+      expect(maze.edgeTypes[posOne.toKey()]).to.equal(EdgeType.Absent);
+      expect(maze.edgeTypes[posTwo.toKey()]).to.equal(EdgeType.Disrupt);
     });
 
     it('Discards any edge with wrong coordinates', () => {
