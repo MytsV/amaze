@@ -58,9 +58,7 @@ class Maze {
    * @param {Position} position
    */
   setOrigin({x, y}) {
-    if (x < 0 || y < 0 || x > this.width || y > this.height) {
-      throw Error('x and y should be in [0, width/height + 1) range');
-    }
+    this.#verifyVertexPosition({x, y});
     const endpoint = this.endpoints.find((el) => el.x === x && el.y === y);
     if (endpoint) {
       throw Error('The argument position coincides with an endpoint');
@@ -84,9 +82,7 @@ class Maze {
    * @param {Position} position
    */
   setEndpoint({x, y}) {
-    if (x < 0 || y < 0 || x > this.width || y > this.height) {
-      throw Error('x and y should be in [0, width/height + 1) range');
-    }
+    this.#verifyVertexPosition({x, y});
     const xOuter = x === 0 || x === this.width;
     const yOuter = y === 0 || y === this.height;
     if (!xOuter && !yOuter) {
@@ -120,6 +116,17 @@ class Maze {
    * @param {EdgeType} type
    */
   setEdge({x, y}, type) {
+    this.#verifyEdgePosition({x, y});
+    this.edgeTypes[{x, y}] = type;
+  }
+
+  #verifyVertexPosition({x, y}) {
+    if (x < 0 || y < 0 || x > this.width || y > this.height) {
+      throw Error('x and y should be in [0, width/height + 1) range');
+    }
+  }
+
+  #verifyEdgePosition({x, y}) {
     if (x < 0 || y < 0 || y > this.height * 2) {
       throw Error('x and y should be >= 0, y should not exceed height * 2');
     }
@@ -129,7 +136,12 @@ class Maze {
     } else if (y % 2 !== 0 && x > this.width) { // If edge is vertical
       throw Error('x should not exceed width');
     }
-    this.edgeTypes[{x, y}] = type;
+  }
+
+  #verifyCellPosition({x, y}) {
+    if (x < 0 || y < 0 || x > this.width || y > this.height) {
+      throw Error('x and y should be in [0, width|height) range');
+    }
   }
 }
 
