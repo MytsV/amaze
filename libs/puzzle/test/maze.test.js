@@ -34,12 +34,14 @@ describe('Maze', () => {
 
   describe('new Maze(width, height)', () => {
     const errorMsg = 'Cell count can\'t be negative or zero';
+
     it('Successfully creates a Maze', () => {
       const size = 5;
       const maze = new Maze(size, size);
       expect(maze.width).to.equal(size);
       expect(maze.height).to.equal(size);
     });
+
     it('Fails if either argument is negative', () => {
       const size = -1;
       const errorMsg = 'Cell count can\'t be negative';
@@ -48,6 +50,7 @@ describe('Maze', () => {
       fn = () => new Maze(-size, size);
       expect(fn).to.throw(errorMsg);
     });
+
     it('Fails if either argument is zero', () => {
       let fn = () => new Maze(1, 0);
       expect(fn).to.throw(errorMsg);
@@ -55,6 +58,7 @@ describe('Maze', () => {
       expect(fn).to.throw(errorMsg);
     });
   });
+
   describe('setOrigin({x, y})', () => {
     it('Appends origin with the same positions only once', () => {
       const size = 5;
@@ -65,9 +69,11 @@ describe('Maze', () => {
       maze.setOrigin(pos);
       expect(maze.origins.length).to.equal(1);
     });
+
     it('Fails if the position is out of bounds', () => {
       testRange((maze, pos) => maze.setOrigin(pos));
     });
+
     it('Fails if there is an identical endpoint', () => {
       const errorMsg = 'The argument position coincides with an endpoint';
       const size = 1;
@@ -80,6 +86,7 @@ describe('Maze', () => {
       expect(() => maze.setOrigin(newPos)).to.not.throw(errorMsg);
     });
   });
+
   describe('setEndpoint({x, y})', () => {
     it('Appends endpoint with the same positions only once', () => {
       const size = 5;
@@ -90,9 +97,11 @@ describe('Maze', () => {
       maze.setEndpoint(pos);
       expect(maze.endpoints.length).to.equal(1);
     });
+
     it('Fails if the position is out of bounds', () => {
       testRange((maze, pos) => maze.setEndpoint(pos));
     });
+
     it('Fails if provided with an inner vertex', () => {
       const errorMsg = 'The argument is not an outer vertex';
       // 2x2 maze has (1,1) as inner vertex
@@ -109,6 +118,7 @@ describe('Maze', () => {
       // (0, 1) is an outer edge and should not lead to an Error
       expect(() => maze.setEndpoint(new Position(0, 1))).to.not.throw(Error);
     });
+
     it('Fails if there is an identical origin', () => {
       const errorMsg = 'The argument position coincides with an origin';
       const size = 1;
