@@ -18,6 +18,10 @@ class Position {
     const pos = JSON.parse(key);
     return new Position(pos.x, pos.y);
   }
+
+  equals(pos) {
+    return this.x === pos.x && this.y === pos.y;
+  }
 }
 
 module.exports = Position;
