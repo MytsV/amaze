@@ -1,5 +1,5 @@
 const {describe} = require('mocha');
-const {Maze, Position} = require('../src/maze');
+const {Maze, Position, EdgeType} = require('../src/maze');
 const {expect} = require('chai');
 
 describe('Position', () => {
@@ -129,6 +129,38 @@ describe('Maze', () => {
       // Should not fail if there is no such origin
       const newPos = new Position(0, 0);
       expect(() => maze.setEndpoint(newPos)).to.not.throw(errorMsg);
+    });
+  });
+
+  describe('setEdge({x, y}, type)', () => {
+    it('Successfully updates edge type on a correct position', () => {
+      const x = 1;
+      const y = 1;
+      const pos = new Position(x, y);
+      const maze = new Maze(x, y);
+      // Edge type must be solid by default
+      expect(maze.edgeTypes[pos]).to.equal(EdgeType.Solid);
+      maze.setEdge(pos, EdgeType.Absent);
+      expect(maze.edgeTypes[pos]).to.equal(EdgeType.Absent);
+    });
+
+    it('Discards any edge with wrong coordinates', () => {
+      const w = 5;
+      const h = 10;
+      const maze = new Maze(w, h);
+      const type = EdgeType.Absent;
+      // Don't accept negative values or y > width * 2
+      expect(() => maze.setEdge(new Position(-1, h), type)).to.throw();
+      expect(() => maze.setEdge(new Position(w, -1), type)).to.throw();
+      expect(() => maze.setEdge(new Position(w / 2, h * 3), type)).to.throw();
+      // If an edge is horizontal, then x value should be < width
+      expect(() => maze.setEdge(new Position(w, 0), type)).to.throw();
+      expect(() => maze.setEdge(new Position(w * 2, 0), type)).to.throw();
+      expect(() => maze.setEdge(new Position(w - 1, 0), type)).to.not.throw();
+      // If an edge is vertical, then x value should be < width + 1
+      expect(() => maze.setEdge(new Position(w, 1), type)).to.not.throw();
+      expect(() => maze.setEdge(new Position(w * 2, 1), type)).to.throw();
+      expect(() => maze.setEdge(new Position(w + 1, 1), type)).to.throw();
     });
   });
 });
