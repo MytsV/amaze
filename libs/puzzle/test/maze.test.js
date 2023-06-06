@@ -59,19 +59,19 @@ describe('Maze', () => {
     });
   });
 
-  describe('setOrigin({x, y})', () => {
+  describe('addOrigin({x, y})', () => {
     it('Appends origin with the same positions only once', () => {
       const size = 5;
       const pos = new Position(1, 1);
       const maze = new Maze(size, size);
-      maze.setOrigin(pos);
-      maze.setOrigin(pos);
-      maze.setOrigin(pos);
+      maze.addOrigin(pos);
+      maze.addOrigin(pos);
+      maze.addOrigin(pos);
       expect(maze.origins.length).to.equal(1);
     });
 
     it('Fails if the position is out of bounds', () => {
-      testRange((maze, pos) => maze.setOrigin(pos));
+      testRange((maze, pos) => maze.addOrigin(pos));
     });
 
     it('Fails if there is an identical endpoint', () => {
@@ -79,44 +79,44 @@ describe('Maze', () => {
       const size = 1;
       const pos = new Position(size, size);
       const maze = new Maze(size, size);
-      maze.setEndpoint(pos);
-      expect(() => maze.setOrigin(pos)).to.throw(errorMsg);
+      maze.addEndpoint(pos);
+      expect(() => maze.addOrigin(pos)).to.throw(errorMsg);
       // Should not fail if there is no such endpoint
       const newPos = new Position(0, 0);
-      expect(() => maze.setOrigin(newPos)).to.not.throw(errorMsg);
+      expect(() => maze.addOrigin(newPos)).to.not.throw(errorMsg);
     });
   });
 
-  describe('setEndpoint({x, y})', () => {
+  describe('addEndpoint({x, y})', () => {
     it('Appends endpoint with the same positions only once', () => {
       const size = 5;
       const pos = new Position(size, size);
       const maze = new Maze(size, size);
-      maze.setEndpoint(pos);
-      maze.setEndpoint(pos);
-      maze.setEndpoint(pos);
+      maze.addEndpoint(pos);
+      maze.addEndpoint(pos);
+      maze.addEndpoint(pos);
       expect(maze.endpoints.length).to.equal(1);
     });
 
     it('Fails if the position is out of bounds', () => {
-      testRange((maze, pos) => maze.setEndpoint(pos));
+      testRange((maze, pos) => maze.addEndpoint(pos));
     });
 
     it('Fails if provided with an inner vertex', () => {
       const errorMsg = 'The argument is not an outer vertex';
       // 2x2 maze has (1,1) as inner vertex
       let maze = new Maze(2, 2);
-      expect(() => maze.setEndpoint(new Position(1, 1))).to.throw(errorMsg);
+      expect(() => maze.addEndpoint(new Position(1, 1))).to.throw(errorMsg);
 
       // 3x3 maze has inner vertices (1,1) - (1,2) - (2,1) - (2,2)
       maze = new Maze(3, 3);
-      expect(() => maze.setEndpoint(new Position(1, 1))).to.throw(errorMsg);
-      expect(() => maze.setEndpoint(new Position(1, 2))).to.throw(errorMsg);
-      expect(() => maze.setEndpoint(new Position(2, 1))).to.throw(errorMsg);
-      expect(() => maze.setEndpoint(new Position(2, 2))).to.throw(errorMsg);
+      expect(() => maze.addEndpoint(new Position(1, 1))).to.throw(errorMsg);
+      expect(() => maze.addEndpoint(new Position(1, 2))).to.throw(errorMsg);
+      expect(() => maze.addEndpoint(new Position(2, 1))).to.throw(errorMsg);
+      expect(() => maze.addEndpoint(new Position(2, 2))).to.throw(errorMsg);
 
       // (0, 1) is an outer edge and should not lead to an Error
-      expect(() => maze.setEndpoint(new Position(0, 1))).to.not.throw(Error);
+      expect(() => maze.addEndpoint(new Position(0, 1))).to.not.throw(Error);
     });
 
     it('Fails if there is an identical origin', () => {
@@ -124,15 +124,15 @@ describe('Maze', () => {
       const size = 1;
       const pos = new Position(size, size);
       const maze = new Maze(size, size);
-      maze.setOrigin(pos);
-      expect(() => maze.setEndpoint(pos)).to.throw(errorMsg);
+      maze.addOrigin(pos);
+      expect(() => maze.addEndpoint(pos)).to.throw(errorMsg);
       // Should not fail if there is no such origin
       const newPos = new Position(0, 0);
-      expect(() => maze.setEndpoint(newPos)).to.not.throw(errorMsg);
+      expect(() => maze.addEndpoint(newPos)).to.not.throw(errorMsg);
     });
   });
 
-  describe('setEdge({x, y}, type)', () => {
+  describe('updateEdge({x, y}, type)', () => {
     it('Successfully updates edge type on a correct position', () => {
       const x = 1;
       const y = 1;
@@ -140,7 +140,7 @@ describe('Maze', () => {
       const maze = new Maze(x, y);
       // Edge type must be solid by default
       expect(maze.edgeTypes[pos]).to.equal(EdgeType.Solid);
-      maze.setEdge(pos, EdgeType.Absent);
+      maze.updateEdge(pos, EdgeType.Absent);
       expect(maze.edgeTypes[pos]).to.equal(EdgeType.Absent);
     });
 
@@ -148,25 +148,25 @@ describe('Maze', () => {
       const w = 5;
       const h = 10;
       const maze = new Maze(w, h);
-      const type = EdgeType.Absent;
+      const t = EdgeType.Absent;
       // Don't accept negative values or y > width * 2
-      expect(() => maze.setEdge(new Position(-1, h), type)).to.throw();
-      expect(() => maze.setEdge(new Position(w, -1), type)).to.throw();
-      expect(() => maze.setEdge(new Position(w / 2, h * 3), type)).to.throw();
+      expect(() => maze.updateEdge(new Position(-1, h), t)).to.throw();
+      expect(() => maze.updateEdge(new Position(w, -1), t)).to.throw();
+      expect(() => maze.updateEdge(new Position(w / 2, h * 3), t)).to.throw();
       // If an edge is horizontal, then x value should be < width
-      expect(() => maze.setEdge(new Position(w, 0), type)).to.throw();
-      expect(() => maze.setEdge(new Position(w * 2, 0), type)).to.throw();
-      expect(() => maze.setEdge(new Position(w - 1, 0), type)).to.not.throw();
+      expect(() => maze.updateEdge(new Position(w, 0), t)).to.throw();
+      expect(() => maze.updateEdge(new Position(w * 2, 0), t)).to.throw();
+      expect(() => maze.updateEdge(new Position(w - 1, 0), t)).to.not.throw();
       // If an edge is vertical, then x value should be < width + 1
-      expect(() => maze.setEdge(new Position(w, 1), type)).to.not.throw();
-      expect(() => maze.setEdge(new Position(w * 2, 1), type)).to.throw();
-      expect(() => maze.setEdge(new Position(w + 1, 1), type)).to.throw();
+      expect(() => maze.updateEdge(new Position(w, 1), t)).to.not.throw();
+      expect(() => maze.updateEdge(new Position(w * 2, 1), t)).to.throw();
+      expect(() => maze.updateEdge(new Position(w + 1, 1), t)).to.throw();
     });
 
     it('Fails if edge type is unknown', () => {
       const size = 1;
       const maze = new Maze(size, size);
-      expect(() => maze.setEdge(new Position(size, size), 'test')).to.throw();
+      expect(() => maze.updateEdge(new Position(size, size), 'hi')).to.throw();
     });
   });
 });

@@ -1,3 +1,5 @@
+const _ = require('lodash');
+
 /** A wrapper for any position on a Maze. */
 class Position {
   /**
@@ -25,9 +27,16 @@ const EdgeType = {
  ORIGINS and ENDPOINTS cannot coincide.
  EDGES
  - Straight lines, connecting vertices. Can be either horizontal or vertical
+ CELLS
+ - Space between edges
  */
 /** An abstract class which defines the structure of any maze. */
 class Maze {
+  #origins = [];
+  #endpoints = [];
+  #edgeTypes = {};
+  #cellModifiers = {};
+  #vertexModifiers = {};
   /**
    * Creates a maze with width * height cells.
    * @constructor
@@ -35,14 +44,8 @@ class Maze {
    * @param {number} height - cell count per y axis.
    */
   constructor(width, height) {
-    if (width <= 0 || height <= 0) {
-      throw Error('Cell count can\'t be negative or zero');
-    }
     Object.assign(this, {width, height});
-    this.origins = [];
-    this.endpoints = [];
-    this.edgeTypes = {};
-    this.modifiers = {};
+    this.#verifySize();
   }
 
   /*
@@ -57,15 +60,15 @@ class Maze {
    * Correctly includes a new maze origin.
    * @param {Position} position
    */
-  setOrigin({x, y}) {
+  addOrigin({x, y}) {
     this.#verifyVertexPosition({x, y});
-    const endpoint = this.endpoints.find((el) => el.x === x && el.y === y);
+    const endpoint = this.#endpoints.find((el) => el.x === x && el.y === y);
     if (endpoint) {
       throw Error('The argument position coincides with an endpoint');
     }
-    const existing = this.origins.find((el) => el.x === x && el.y === y);
+    const existing = this.#origins.find((el) => el.x === x && el.y === y);
     if (!existing) {
-      this.origins.push(new Position(x, y));
+      this.#origins.push(new Position(x, y));
     }
   }
 
@@ -81,20 +84,16 @@ class Maze {
    * Correctly includes a new maze endpoint.
    * @param {Position} position
    */
-  setEndpoint({x, y}) {
+  addEndpoint({x, y}) {
     this.#verifyVertexPosition({x, y});
-    const xOuter = x === 0 || x === this.width;
-    const yOuter = y === 0 || y === this.height;
-    if (!xOuter && !yOuter) {
-      throw Error('The argument is not an outer vertex');
-    }
-    const origin = this.origins.find((el) => el.x === x && el.y === y);
+    this.#verifyOuterPosition({x, y});
+    const origin = this.#origins.find((el) => el.x === x && el.y === y);
     if (origin) {
       throw Error('The argument position coincides with an origin');
     }
-    const existing = this.endpoints.find((el) => el.x === x && el.y === y);
+    const existing = this.#endpoints.find((el) => el.x === x && el.y === y);
     if (!existing) {
-      this.endpoints.push(new Position(x, y));
+      this.#endpoints.push(new Position(x, y));
     }
   }
 
@@ -111,18 +110,44 @@ class Maze {
   X--(0,0)--X--(1,0)--X
    */
   /**
-   * Updates the edge type on position {x, y}
+   * Updates the edge type at position {x, y}
    * @param {Position} position
-   * @param {EdgeType} type
+   * @param {string | undefined} type
    */
-  setEdge({x, y}, type) {
+  updateEdge({x, y}, type) {
+    if (!Object.values(EdgeType).includes(type)) {
+      throw Error('Type must belong to EdgeType enumerable');
+    }
     this.#verifyEdgePosition({x, y});
-    this.edgeTypes[{x, y}] = type;
+    this.#edgeTypes[{x, y}] = type;
+  }
+
+  /**
+   * Updates a modifier at position {x, y}
+   * @param {Position} position
+   * @param {Modifier} modifier
+   */
+  updateModifier({x, y}, modifier) {
+    // TODO: check superclass (CellModifier or VertexModifier)
+  }
+
+  #verifySize() {
+    if (this.width <= 0 || this.height <= 0) {
+      throw Error('Cell count can\'t be negative or zero');
+    }
   }
 
   #verifyVertexPosition({x, y}) {
     if (x < 0 || y < 0 || x > this.width || y > this.height) {
       throw Error('x and y should be in [0, width|height + 1) range');
+    }
+  }
+
+  #verifyOuterPosition({x, y}) {
+    const xOuter = x === 0 || x === this.width;
+    const yOuter = y === 0 || y === this.height;
+    if (!xOuter && !yOuter) {
+      throw Error('The argument is not an outer vertex');
     }
   }
 
@@ -142,6 +167,26 @@ class Maze {
     if (x < 0 || y < 0 || x > this.width || y > this.height) {
       throw Error('x and y should be in [0, width|height) range');
     }
+  }
+
+  get origins() {
+    return _.cloneDeep(this.#origins);
+  }
+
+  get endpoints() {
+    return _.cloneDeep(this.#endpoints);
+  }
+
+  get edgeTypes() {
+    return _.cloneDeep(this.#edgeTypes);
+  }
+
+  get cellModifiers() {
+    return _.cloneDeep(this.#cellModifiers);
+  }
+
+  get vertexModifiers() {
+    return _.cloneDeep(this.#vertexModifiers);
   }
 }
 
