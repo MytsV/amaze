@@ -20,16 +20,14 @@ describe('Maze', () => {
 
     const maze = new Maze(w, h);
     const errorMsg = 'x and y should be in [0, width|height + 1) range';
+    const checkThrow = (pos) => expect(() => fn(maze, pos)).to.throw(errorMsg);
     // Testing the upper limit for x
-    expect(() => fn(maze, new Position(w + 1, h))).to.throw(errorMsg);
-    expect(() => fn(maze, new Position(w * 10, h))).to.throw(errorMsg);
-    // Testing the lower limit for x
-    expect(() => fn(maze, new Position(-1, h))).to.throw(errorMsg);
-    // Testing the upper limit for y
-    expect(() => fn(maze, new Position(w, h + 1))).to.throw(errorMsg);
-    expect(() => fn(maze, new Position(w, h * 10))).to.throw(errorMsg);
-    // Testing the lower limit for y
-    expect(() => fn(maze, new Position(w, -1))).to.throw(errorMsg);
+    checkThrow(new Position(w + 1, h));
+    checkThrow(new Position(w * 10, h));
+    checkThrow(new Position(-1, h));
+    checkThrow(new Position(w, h + 1));
+    checkThrow(new Position(w, h * 10));
+    checkThrow(new Position(w, -1));
   };
 
   describe('new Maze(width, height)', () => {
@@ -104,18 +102,22 @@ describe('Maze', () => {
 
     it('Fails if provided with an inner vertex', () => {
       const errorMsg = 'The argument is not an outer vertex';
+
       // 2x2 maze has (1,1) as inner vertex
       let maze = new Maze(2, 2);
-      expect(() => maze.addEndpoint(new Position(1, 1))).to.throw(errorMsg);
+      const checkThrow = (pos) => {
+        expect(() => maze.addEndpoint(pos)).to.throw(errorMsg);
+      };
+      checkThrow(new Position(1, 1));
 
       // 3x3 maze has inner vertices (1,1) - (1,2) - (2,1) - (2,2)
       maze = new Maze(3, 3);
-      expect(() => maze.addEndpoint(new Position(1, 1))).to.throw(errorMsg);
-      expect(() => maze.addEndpoint(new Position(1, 2))).to.throw(errorMsg);
-      expect(() => maze.addEndpoint(new Position(2, 1))).to.throw(errorMsg);
-      expect(() => maze.addEndpoint(new Position(2, 2))).to.throw(errorMsg);
+      checkThrow(new Position(1, 1));
+      checkThrow(new Position(1, 2));
+      checkThrow(new Position(2, 1));
+      checkThrow(new Position(2, 2));
 
-      // (0, 1) is an outer edge and should not lead to an Error
+      // (0, 1) is an outer vertex and should not lead to an Error
       expect(() => maze.addEndpoint(new Position(0, 1))).to.not.throw(Error);
     });
 
@@ -145,22 +147,30 @@ describe('Maze', () => {
     });
 
     it('Discards any edge with wrong coordinates', () => {
-      const w = 5;
-      const h = 10;
-      const maze = new Maze(w, h);
-      const t = EdgeType.Absent;
+      const width = 5;
+      const height = width * 2;
+      const maze = new Maze(width, height);
+      const checkThrow = (pos) => {
+        expect(() => maze.updateEdge(pos, EdgeType.Absent)).to.throw();
+      };
+      const checkValid = (pos) => {
+        expect(() => maze.updateEdge(pos, EdgeType.Absent)).to.not.throw();
+      };
+
       // Don't accept negative values or y > width * 2
-      expect(() => maze.updateEdge(new Position(-1, h), t)).to.throw();
-      expect(() => maze.updateEdge(new Position(w, -1), t)).to.throw();
-      expect(() => maze.updateEdge(new Position(w / 2, h * 3), t)).to.throw();
+      checkThrow(new Position(-1, height));
+      checkThrow(new Position(width, -1));
+      checkThrow(new Position(width / 2, height * 3));
       // If an edge is horizontal, then x value should be < width
-      expect(() => maze.updateEdge(new Position(w, 0), t)).to.throw();
-      expect(() => maze.updateEdge(new Position(w * 2, 0), t)).to.throw();
-      expect(() => maze.updateEdge(new Position(w - 1, 0), t)).to.not.throw();
+      const horizontalY = 0;
+      checkThrow(new Position(width, horizontalY));
+      checkThrow(new Position(width * 2, horizontalY));
+      checkValid(new Position(width - 1, horizontalY));
       // If an edge is vertical, then x value should be < width + 1
-      expect(() => maze.updateEdge(new Position(w, 1), t)).to.not.throw();
-      expect(() => maze.updateEdge(new Position(w * 2, 1), t)).to.throw();
-      expect(() => maze.updateEdge(new Position(w + 1, 1), t)).to.throw();
+      const verticalY = 1;
+      checkValid(new Position(width, verticalY));
+      checkThrow(new Position(width * 2, verticalY));
+      checkThrow(new Position(width + 1, verticalY));
     });
 
     it('Fails if edge type is unknown', () => {
