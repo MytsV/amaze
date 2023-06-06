@@ -1,16 +1,5 @@
 const _ = require('lodash');
-
-/** A wrapper for any position on a Maze. */
-class Position {
-  /**
-   * @constructor
-   * @param {number} x
-   * @param {number} y
-   */
-  constructor(x, y) {
-    Object.assign(this, {x, y});
-  }
-}
+const Position = require('./position');
 
 const EdgeType = {
   // Edge is Solid by default
@@ -34,9 +23,9 @@ const EdgeType = {
 class Maze {
   #origins = [];
   #endpoints = [];
-  #edgeTypes = {};
-  #cellModifiers = {};
-  #vertexModifiers = {};
+  #edgeTypes = new Map();
+  #cellModifiers = new Map();
+  #vertexModifiers = new Map();
   /**
    * Creates a maze with width * height cells.
    * @constructor
@@ -119,7 +108,8 @@ class Maze {
       throw Error('Type must belong to EdgeType enumerable');
     }
     this.#verifyEdgePosition({x, y});
-    this.#edgeTypes[{x, y}] = type;
+    const position = new Position(x, y);
+    this.#edgeTypes[position.toKey()] = type;
   }
 
   /**
