@@ -50,7 +50,7 @@ class Maze {
    * @param {Position} position
    */
   addOrigin({x, y}) {
-    this.#verifyVertexPosition({x, y});
+    this.verifyVertexPosition({x, y});
     const endpoint = this.#endpoints.find((el) => el.x === x && el.y === y);
     if (endpoint) {
       throw Error('The argument position coincides with an endpoint');
@@ -74,7 +74,7 @@ class Maze {
    * @param {Position} position
    */
   addEndpoint({x, y}) {
-    this.#verifyVertexPosition({x, y});
+    this.verifyVertexPosition({x, y});
     this.#verifyOuterPosition({x, y});
     const origin = this.#origins.find((el) => el.x === x && el.y === y);
     if (origin) {
@@ -127,7 +127,7 @@ class Maze {
     }
   }
 
-  #verifyVertexPosition({x, y}) {
+  verifyVertexPosition({x, y}) {
     if (x < 0 || y < 0 || x > this.width || y > this.height) {
       throw Error('x and y should be in [0, width|height + 1) range');
     }
