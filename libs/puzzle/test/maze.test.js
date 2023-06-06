@@ -19,7 +19,7 @@ describe('Maze', () => {
     const h = 2;
 
     const maze = new Maze(w, h);
-    const errorMsg = 'x and y should be in [0, width/height + 1) range';
+    const errorMsg = 'x and y should be in [0, width|height + 1) range';
     // Testing the upper limit for x
     expect(() => fn(maze, new Position(w + 1, h))).to.throw(errorMsg);
     expect(() => fn(maze, new Position(w * 10, h))).to.throw(errorMsg);

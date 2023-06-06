@@ -122,7 +122,7 @@ class Maze {
 
   #verifyVertexPosition({x, y}) {
     if (x < 0 || y < 0 || x > this.width || y > this.height) {
-      throw Error('x and y should be in [0, width/height + 1) range');
+      throw Error('x and y should be in [0, width|height + 1) range');
     }
   }
 
