@@ -162,5 +162,11 @@ describe('Maze', () => {
       expect(() => maze.setEdge(new Position(w * 2, 1), type)).to.throw();
       expect(() => maze.setEdge(new Position(w + 1, 1), type)).to.throw();
     });
+
+    it('Fails if edge type is unknown', () => {
+      const size = 1;
+      const maze = new Maze(size, size);
+      expect(() => maze.setEdge(new Position(size, size), 'test')).to.throw();
+    });
   });
 });
