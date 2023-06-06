@@ -1,5 +1,6 @@
 const {describe} = require('mocha');
-const {Maze, Position, EdgeType} = require('../src/maze');
+const {Maze, EdgeType} = require('../src/maze');
+const Position = require('../src/position');
 const {expect} = require('chai');
 
 describe('Position', () => {

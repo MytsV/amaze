@@ -1,16 +1,5 @@
 const _ = require('lodash');
-
-/** A wrapper for any position on a Maze. */
-class Position {
-  /**
-   * @constructor
-   * @param {number} x
-   * @param {number} y
-   */
-  constructor(x, y) {
-    Object.assign(this, {x, y});
-  }
-}
+const Position = require('./position');
 
 const EdgeType = {
   // Edge is Solid by default
