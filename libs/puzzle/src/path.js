@@ -11,6 +11,10 @@ class Path {
   - vertices never repeat
   - each next vertex is reachable from the last one, distance === 1
    */
+  /**
+   * Checks whether such path can exist by itself
+   * @return {boolean}
+   */
   isValid() {
     if (this.vertices.length <= 1) return false;
     const used = {};
