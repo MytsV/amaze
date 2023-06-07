@@ -28,6 +28,7 @@ class Solution {
   isValid() {
     // TODO: implement all steps
     if (!this.isPathValid()) return false;
+    return true;
   }
 
   /*
@@ -47,7 +48,7 @@ class Solution {
     const origin = this.maze.origins.find((e) => e.equals(last));
     if (!origin) return false;
 
-    for (let i = 0; i < vertices.length; i++) {
+    for (let i = 1; i < vertices.length; i++) {
       const vertex = vertices[i];
 
       try {
@@ -65,7 +66,7 @@ class Solution {
     }
 
     const endpoint = this.maze.endpoints.find((e) => e.equals(last));
-    if (!endpoint) return false;
+    return endpoint !== undefined;
   }
 }
 
