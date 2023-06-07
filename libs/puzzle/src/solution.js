@@ -13,7 +13,7 @@ const getEdgePosition = (a, b) => {
     const x = Math.min(a.x, b.x);
     return new Position(x, y);
   } else if (a.x === b.x && Math.abs(a.y - b.y) === 1) { // If edge is vertical
-    const y = 1 + Math.min(a.x, b.x) * 2;
+    const y = 1 + Math.min(a.y, b.y) * 2;
     return new Position(a.x, y);
   } else {
     throw Error('Vertices can\'t be equal');
