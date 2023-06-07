@@ -50,7 +50,7 @@ class Maze {
    * @param {Position} position
    */
   addOrigin({x, y}) {
-    this.#verifyVertexPosition({x, y});
+    this.verifyVertexPosition({x, y});
     const endpoint = this.#endpoints.find((el) => el.x === x && el.y === y);
     if (endpoint) {
       throw Error('The argument position coincides with an endpoint');
@@ -74,7 +74,7 @@ class Maze {
    * @param {Position} position
    */
   addEndpoint({x, y}) {
-    this.#verifyVertexPosition({x, y});
+    this.verifyVertexPosition({x, y});
     this.#verifyOuterPosition({x, y});
     const origin = this.#origins.find((el) => el.x === x && el.y === y);
     if (origin) {
@@ -113,12 +113,14 @@ class Maze {
   }
 
   /**
-   * Updates a modifier at position {x, y}
+   * Updates a vertex modifier at position {x, y}
    * @param {Position} position
-   * @param {Modifier} modifier
+   * @param {VertexModifier} modifier
    */
-  updateModifier({x, y}, modifier) {
-    // TODO: check superclass (CellModifier or VertexModifier)
+  updateVertexModifier({x, y}, modifier) {
+    const position = new Position(x, y);
+    this.verifyVertexPosition(position);
+    this.#vertexModifiers[position.toKey()] = modifier;
   }
 
   #verifySize() {
@@ -127,7 +129,7 @@ class Maze {
     }
   }
 
-  #verifyVertexPosition({x, y}) {
+  verifyVertexPosition({x, y}) {
     if (x < 0 || y < 0 || x > this.width || y > this.height) {
       throw Error('x and y should be in [0, width|height + 1) range');
     }
