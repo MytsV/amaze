@@ -123,6 +123,17 @@ class Maze {
     this.#vertexModifiers[position.toKey()] = modifier;
   }
 
+  /**
+   * Updates a cell modifier at position {x, y}
+   * @param {Position} position
+   * @param {CellModifier} modifier
+   */
+  updateCellModifier({x, y}, modifier) {
+    const position = new Position(x, y);
+    this.#verifyCellPosition(position);
+    this.#cellModifiers[position.toKey()] = modifier;
+  }
+
   #verifySize() {
     if (this.width <= 0 || this.height <= 0) {
       throw Error('Cell count can\'t be negative or zero');
