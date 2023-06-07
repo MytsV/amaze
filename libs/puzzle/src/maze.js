@@ -23,9 +23,9 @@ const EdgeType = {
 class Maze {
   #origins = [];
   #endpoints = [];
-  #edgeTypes = new Map();
-  #cellModifiers = new Map();
-  #vertexModifiers = new Map();
+  #edgeTypes = {};
+  #cellModifiers = {};
+  #vertexModifiers = {};
   /**
    * Creates a maze with width * height cells.
    * @constructor
