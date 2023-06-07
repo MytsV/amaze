@@ -4,6 +4,7 @@ const {expect} = require('chai');
 const {Maze, EdgeType} = require('../src/maze');
 const {Path} = require('../src/path');
 const {getEdgePosition, Solution} = require('../src/solution');
+const {HexagonModifier} = require('../src/modifier');
 
 describe('getEdgePosition(a, b)', () => {
   it('Fails for equal vertices, or if distance > 1', () => {
@@ -43,34 +44,38 @@ describe('getEdgePosition(a, b)', () => {
   });
 });
 
+const checkSolution = (test, fn) => {
+  const maze = new Maze(test.width, test.height);
+  for (const origin of test.origins ?? []) {
+    maze.addOrigin(origin);
+  }
+  for (const endpoint of test.endpoints ?? []) {
+    maze.addEndpoint(endpoint);
+  }
+  for (const edge of test.disruptEdges ?? []) {
+    maze.updateEdge(edge, EdgeType.Disrupt);
+  }
+  for (const [key, value] of test.vertexModifiers ?? []) {
+    maze.updateVertexModifier(key, value);
+  }
+  for (const vertices of test.validPaths ?? []) {
+    const path = new Path();
+    path.vertices = vertices;
+    const solution = new Solution(maze, path);
+    expect(fn(solution)).to.be.true;
+  }
+  for (const vertices of test.invalidPaths ?? []) {
+    const path = new Path();
+    path.vertices = vertices;
+    const solution = new Solution(maze, path);
+    expect(fn(solution)).to.be.false;
+  }
+};
+
 describe('Solution', () => {
   // Here, basically, we test solution algorithm for a maze with no modifiers
+  const fn = (solution) => solution.isPathValid();
   describe('isPathValid()', () => {
-    const checkSolution = (test) => {
-      const maze = new Maze(test.width, test.height);
-      for (const origin of test.origins ?? []) {
-        maze.addOrigin(origin);
-      }
-      for (const endpoint of test.endpoints ?? []) {
-        maze.addEndpoint(endpoint);
-      }
-      for (const edge of (test.disruptEdges ?? [])) {
-        maze.updateEdge(edge, EdgeType.Disrupt);
-      }
-      for (const vertices of test.validPaths ?? []) {
-        const path = new Path();
-        path.vertices = vertices;
-        const solution = new Solution(maze, path);
-        expect(solution.isPathValid()).to.be.true;
-      }
-      for (const vertices of test.invalidPaths ?? []) {
-        const path = new Path();
-        path.vertices = vertices;
-        const solution = new Solution(maze, path);
-        expect(solution.isPathValid()).to.be.false;
-      }
-    };
-
     it('Fails with no origins\\endpoints, then passes', () => {
       checkSolution({
         width: 2,
@@ -84,7 +89,7 @@ describe('Solution', () => {
             new Position(2, 0),
           ],
         ],
-      });
+      }, fn);
       checkSolution({
         width: 2,
         height: 2,
@@ -97,7 +102,7 @@ describe('Solution', () => {
             new Position(2, 0),
           ],
         ],
-      });
+      }, fn);
     });
 
     it('Fails if path is invalid by itself', () => {
@@ -116,7 +121,7 @@ describe('Solution', () => {
             new Position(2, 0),
           ],
         ],
-      });
+      }, fn);
     });
 
     it('Fails if path contains vertices not present on the maze', () => {
@@ -135,7 +140,7 @@ describe('Solution', () => {
             new Position(3, 4),
           ],
         ],
-      });
+      }, fn);
     });
 
     it('Fails if path doesn\'t start at an origin', () => {
@@ -151,7 +156,7 @@ describe('Solution', () => {
             new Position(2, 0),
           ],
         ],
-      });
+      }, fn);
     });
 
     it('Fails if path doesn\'t end at an endpoint', () => {
@@ -167,7 +172,7 @@ describe('Solution', () => {
             new Position(2, 1),
           ],
         ],
-      });
+      }, fn);
     });
 
     it('Works fine for a 2x3 maze with 1 origin and 1 endpoint', () => {
@@ -204,7 +209,7 @@ describe('Solution', () => {
             new Position(1, 3),
           ],
         ],
-      });
+      }, fn);
     });
 
     it('Works fine for a 3x3 maze with 3 origins and 1 endpoint', () => {
@@ -239,7 +244,7 @@ describe('Solution', () => {
             new Position(1, 3),
           ],
         ],
-      });
+      }, fn);
     });
 
     it('Works fine for a 3x3 maze with 2 origins and 3 endpoints', () => {
@@ -269,7 +274,7 @@ describe('Solution', () => {
             new Position(0, 3),
           ],
         ],
-      });
+      }, fn);
     });
 
     it('Fails if path goes through invalid edges', () => {
@@ -305,7 +310,74 @@ describe('Solution', () => {
             new Position(3, 0),
           ],
         ],
-      });
+      }, fn);
+    });
+  });
+
+  // We don't need to check for origins, endpoint, edges - it was done before
+  describe('checkVertexModifiers()', () => {
+    const fn = (solution) => solution.checkVertexModifiers();
+    it('Correctly checks hexagon modifiers', () => {
+      checkSolution({
+        width: 3,
+        height: 3,
+        origins: [new Position(0, 0)],
+        endpoints: [new Position(3, 3)],
+        vertexModifiers: [
+          [new Position(0, 1), new HexagonModifier()],
+          [new Position(2, 2), new HexagonModifier()],
+        ],
+        invalidPaths: [
+          // No hexagons are passed through
+          [
+            new Position(0, 0),
+            new Position(1, 0),
+            new Position(1, 1),
+            new Position(1, 2),
+            new Position(1, 3),
+            new Position(2, 3),
+            new Position(3, 3),
+          ],
+          // One hexagon is passed through
+          [
+            new Position(0, 0),
+            new Position(0, 1),
+            new Position(1, 1),
+            new Position(1, 2),
+            new Position(1, 3),
+            new Position(2, 3),
+            new Position(3, 3),
+          ],
+          // Other hexagon is passed through
+          [
+            new Position(0, 0),
+            new Position(1, 0),
+            new Position(2, 0),
+            new Position(2, 1),
+            new Position(3, 1),
+            new Position(3, 2),
+            new Position(2, 2),
+            new Position(2, 3),
+            new Position(3, 3),
+          ],
+        ],
+        // All hexagons are passed through
+        validPaths: [
+          [
+            new Position(0, 0),
+            new Position(0, 1),
+            new Position(1, 1),
+            new Position(1, 0),
+            new Position(2, 0),
+            new Position(2, 1),
+            new Position(3, 1),
+            new Position(3, 2),
+            new Position(2, 2),
+            new Position(2, 3),
+            new Position(3, 3),
+          ],
+        ],
+      }, fn);
     });
   });
 });

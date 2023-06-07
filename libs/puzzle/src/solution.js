@@ -28,6 +28,7 @@ class Solution {
   isValid() {
     // TODO: implement all steps
     if (!this.isPathValid()) return false;
+    if (!this.checkVertexModifiers()) return false;
     return true;
   }
 
@@ -67,6 +68,16 @@ class Solution {
 
     const endpoint = this.maze.endpoints.find((e) => e.equals(last));
     return endpoint !== undefined;
+  }
+
+  checkVertexModifiers() {
+    const modifiers = this.maze.vertexModifiers;
+    for (const [key, modifier] of Object.entries(modifiers)) {
+      if (!modifier.check(Position.fromKey(key), this.path)) {
+        return false;
+      }
+    }
+    return true;
   }
 }
 
