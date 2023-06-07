@@ -113,12 +113,14 @@ class Maze {
   }
 
   /**
-   * Updates a modifier at position {x, y}
+   * Updates a vertex modifier at position {x, y}
    * @param {Position} position
-   * @param {Modifier} modifier
+   * @param {VertexModifier} modifier
    */
-  updateModifier({x, y}, modifier) {
-    // TODO: check superclass (CellModifier or VertexModifier)
+  updateVertexModifier({x, y}, modifier) {
+    const position = new Position(x, y);
+    this.verifyVertexPosition(position);
+    this.#vertexModifiers[position.toKey()] = modifier;
   }
 
   #verifySize() {
