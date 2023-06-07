@@ -1,4 +1,5 @@
 const Position = require('./position');
+const {EdgeType} = require('./maze');
 
 /**
  * Calculates edge position from positions of two vertices.
@@ -26,7 +27,7 @@ class Solution {
 
   isValid() {
     // TODO: implement all steps
-
+    if (!this.isPathValid()) return false;
   }
 
   /*
@@ -39,18 +40,28 @@ class Solution {
    */
   isPathValid() {
     if (!this.path.isValid()) return false;
+
     const vertices = this.path.vertices;
-    const last = vertices[0];
+    let last = vertices[0];
+
     const origin = this.maze.origins.find((e) => e.equals(last));
     if (!origin) return false;
 
     for (let i = 0; i < vertices.length; i++) {
       const vertex = vertices[i];
+
       try {
         this.maze.verifyVertexPosition(vertex);
       } catch (_) {
         return false;
       }
+
+      const edge = getEdgePosition(last, vertex);
+      if (this.maze.edgeTypes[edge.toKey()] !== EdgeType.Solid) {
+        return false;
+      }
+
+      last = vertex;
     }
 
     const endpoint = this.maze.endpoints.find((e) => e.equals(last));
