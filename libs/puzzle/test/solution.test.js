@@ -1,7 +1,7 @@
 const {describe} = require('mocha');
 const Position = require('../src/position');
 const {expect} = require('chai');
-const {Maze} = require('../src/maze');
+const {Maze, EdgeType} = require('../src/maze');
 const {Path} = require('../src/path');
 const {getEdgePosition, Solution} = require('../src/solution');
 
@@ -46,110 +46,266 @@ describe('getEdgePosition(a, b)', () => {
 describe('Solution', () => {
   // Here, basically, we test solution algorithm for a maze with no modifiers
   describe('isPathValid()', () => {
+    const checkSolution = (test) => {
+      const maze = new Maze(test.width, test.height);
+      for (const origin of test.origins ?? []) {
+        maze.addOrigin(origin);
+      }
+      for (const endpoint of test.endpoints ?? []) {
+        maze.addEndpoint(endpoint);
+      }
+      for (const edge of (test.disruptEdges ?? [])) {
+        maze.updateEdge(edge, EdgeType.Disrupt);
+      }
+      for (const vertices of test.validPaths ?? []) {
+        const path = new Path();
+        path.vertices = vertices;
+        const solution = new Solution(maze, path);
+        expect(solution.isPathValid()).to.be.true;
+      }
+      for (const vertices of test.invalidPaths ?? []) {
+        const path = new Path();
+        path.vertices = vertices;
+        const solution = new Solution(maze, path);
+        expect(solution.isPathValid()).to.be.false;
+      }
+    };
+
     it('Fails with no origins\\endpoints, then passes', () => {
-      const size = 2;
-      const maze = new Maze(size, size);
-
-      const path = new Path();
-      path.vertices = [
-        new Position(0, 1),
-        new Position(1, 1),
-        new Position(1, 0),
-        new Position(2, 0),
-      ];
-
-      const solution = new Solution(maze, path);
-      expect(solution.isPathValid()).to.be.false;
-      maze.addOrigin(new Position(0, 1));
-      expect(solution.isPathValid()).to.be.false;
-
-      maze.addEndpoint(new Position(2, 0));
-      expect(solution.isPathValid()).to.be.true;
+      checkSolution({
+        width: 2,
+        height: 2,
+        origins: [new Position(0, 1)],
+        invalidPaths: [
+          [
+            new Position(0, 1),
+            new Position(1, 1),
+            new Position(1, 0),
+            new Position(2, 0),
+          ],
+        ],
+      });
+      checkSolution({
+        width: 2,
+        height: 2,
+        endpoints: [new Position(2, 0)],
+        invalidPaths: [
+          [
+            new Position(0, 1),
+            new Position(1, 1),
+            new Position(1, 0),
+            new Position(2, 0),
+          ],
+        ],
+      });
     });
 
     it('Fails if path is invalid by itself', () => {
-      const size = 2;
-      const maze = new Maze(size, size);
-      maze.addOrigin(new Position(0, 1));
-      maze.addEndpoint(new Position(2, 0));
-
-      const path = new Path();
-      path.vertices = [
-        new Position(0, 1),
-        new Position(1, 1),
-        new Position(1, 2),
-        // Diagonal move
-        new Position(2, 1),
-        new Position(2, 0),
-      ];
-
-      const solution = new Solution(maze, path);
-      expect(solution.isPathValid()).to.be.false;
+      checkSolution({
+        width: 2,
+        height: 2,
+        origins: [new Position(0, 1)],
+        endpoints: [new Position(2, 0)],
+        invalidPaths: [
+          [
+            new Position(0, 1),
+            new Position(1, 1),
+            new Position(1, 2),
+            // Diagonal move
+            new Position(2, 1),
+            new Position(2, 0),
+          ],
+        ],
+      });
     });
 
     it('Fails if path contains vertices not present on the maze', () => {
-      const size = 2;
-      const maze = new Maze(size, size);
-      maze.addOrigin(new Position(0, 1));
-      maze.addEndpoint(new Position(2, 0));
-
-      const pathNegative = new Path();
-      pathNegative.vertices = [
-        new Position(-1, -1),
-        new Position(-1, 0),
-      ];
-
-      const solutionNegative = new Solution(maze, pathNegative);
-      expect(solutionNegative.isPathValid()).to.be.false;
-
-      const pathExceed = new Path();
-      pathExceed.vertices = [
-        new Position(3, 3),
-        new Position(3, 4),
-      ];
-
-      const solutionExceed = new Solution(maze, pathExceed);
-      expect(solutionExceed.isPathValid()).to.be.false;
+      checkSolution({
+        width: 2,
+        height: 2,
+        origins: [new Position(0, 1)],
+        endpoints: [new Position(2, 0)],
+        invalidPaths: [
+          [
+            new Position(-1, -1),
+            new Position(-1, 0),
+          ],
+          [
+            new Position(3, 3),
+            new Position(3, 4),
+          ],
+        ],
+      });
     });
 
     it('Fails if path doesn\'t start at an origin', () => {
-
+      checkSolution({
+        width: 2,
+        height: 2,
+        origins: [new Position(0, 1)],
+        endpoints: [new Position(2, 0)],
+        invalidPaths: [
+          [
+            new Position(1, 1),
+            new Position(2, 1),
+            new Position(2, 0),
+          ],
+        ],
+      });
     });
 
     it('Fails if path doesn\'t end at an endpoint', () => {
-
+      checkSolution({
+        width: 2,
+        height: 2,
+        origins: [new Position(0, 1)],
+        endpoints: [new Position(2, 0)],
+        invalidPaths: [
+          [
+            new Position(0, 1),
+            new Position(1, 1),
+            new Position(2, 1),
+          ],
+        ],
+      });
     });
 
-    it('Works fine for a 3x3 maze with 1 origin and 1 endpoint', () => {
-
+    it('Works fine for a 2x3 maze with 1 origin and 1 endpoint', () => {
+      checkSolution({
+        width: 2,
+        height: 3,
+        origins: [new Position(0, 0)],
+        endpoints: [new Position(1, 3)],
+        validPaths: [
+          [
+            new Position(0, 0),
+            new Position(1, 0),
+            new Position(2, 0),
+            new Position(2, 1),
+            new Position(1, 1),
+            new Position(1, 2),
+            new Position(0, 2),
+            new Position(0, 3),
+            new Position(1, 3),
+          ],
+          [
+            new Position(0, 0),
+            new Position(1, 0),
+            new Position(1, 1),
+            new Position(1, 2),
+            new Position(1, 3),
+          ],
+        ],
+        invalidPaths: [
+          [
+            new Position(1, 0),
+            new Position(1, 1),
+            new Position(1, 2),
+            new Position(1, 3),
+          ],
+        ],
+      });
     });
 
     it('Works fine for a 3x3 maze with 3 origins and 1 endpoint', () => {
-
+      checkSolution({
+        width: 3,
+        height: 3,
+        origins: [new Position(0, 0), new Position(1, 0), new Position(1, 1)],
+        endpoints: [new Position(1, 3)],
+        validPaths: [
+          [
+            new Position(0, 0),
+            new Position(1, 0),
+            new Position(2, 0),
+            new Position(2, 1),
+            new Position(1, 1),
+            new Position(1, 2),
+            new Position(0, 2),
+            new Position(0, 3),
+            new Position(1, 3),
+          ],
+          [
+            new Position(1, 0),
+            new Position(1, 1),
+            new Position(1, 2),
+            new Position(1, 3),
+          ],
+          [
+            new Position(1, 1),
+            new Position(1, 2),
+            new Position(0, 2),
+            new Position(0, 3),
+            new Position(1, 3),
+          ],
+        ],
+      });
     });
 
-    it('Works fine for a 3x3 maze with 1 origin and 3 endpoints', () => {
-
-    });
-
-    it('Works fine for a 3x3 maze with 3 origins and 3 endpoints', () => {
-
+    it('Works fine for a 3x3 maze with 2 origins and 3 endpoints', () => {
+      checkSolution({
+        width: 3,
+        height: 3,
+        origins: [new Position(1, 1), new Position(2, 0)],
+        endpoints: [new Position(1, 3), new Position(0, 3), new Position(0, 1)],
+        validPaths: [
+          [
+            new Position(2, 0),
+            new Position(2, 1),
+            new Position(1, 1),
+            new Position(1, 2),
+            new Position(0, 2),
+            new Position(0, 3),
+            new Position(1, 3),
+          ],
+          [
+            new Position(1, 1),
+            new Position(0, 1),
+          ],
+          [
+            new Position(1, 1),
+            new Position(1, 2),
+            new Position(0, 2),
+            new Position(0, 3),
+          ],
+        ],
+      });
     });
 
     it('Fails if path goes through invalid edges', () => {
-
-    });
-
-    it('Works fine for a 3x3 maze with disrupt edges', () => {
-
-    });
-
-    it('Works fine for a 5x5 maze with disrupt edges', () => {
-
-    });
-
-    it('Works fine for a 5x5 maze: bad edges, >1 origins and endpoints', () => {
-
+      checkSolution({
+        width: 3,
+        height: 3,
+        origins: [new Position(0, 0)],
+        endpoints: [new Position(3, 0)],
+        disruptEdges: [new Position(1, 2), new Position(3, 1)],
+        invalidPaths: [
+          [
+            new Position(0, 0),
+            new Position(0, 1),
+            new Position(1, 1),
+            new Position(2, 1),
+            new Position(2, 0),
+            new Position(3, 0),
+          ],
+          [
+            new Position(0, 0),
+            new Position(1, 0),
+            new Position(2, 0),
+            new Position(2, 1),
+            new Position(3, 1),
+            new Position(3, 0),
+          ],
+        ],
+        validPaths: [
+          [
+            new Position(0, 0),
+            new Position(1, 0),
+            new Position(2, 0),
+            new Position(3, 0),
+          ],
+        ],
+      });
     });
   });
 });
