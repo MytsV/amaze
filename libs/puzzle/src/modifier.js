@@ -24,4 +24,52 @@ class HexagonModifier extends VertexModifier {
   }
 }
 
-module.exports = {VertexModifier, HexagonModifier};
+class CellModifier {
+  constructor(priority) {
+    if (this.constructor == CellModifier) {
+      throw new Error('Abstract classes can\'t be instantiated.');
+    }
+    this.priority = priority;
+  }
+
+  check(section, path) {
+    throw Error('Method check({path, section}, result) must be implemented');
+  }
+}
+
+class SquareModifier extends CellModifier {
+  static #priority = 1;
+
+  /**
+   * @param {number} color - any number
+   */
+  constructor(color) {
+    super(SquareModifier.#priority);
+    this.color = color;
+  }
+
+  check(section, path) {
+    const keys = [];
+    let valid = true;
+    for (const [pos, element] of Object.entries(section)) {
+      if (element === null) continue;
+      const modifier = element.modifier;
+      if (modifier.color !== undefined) {
+        keys.push(pos);
+        if (modifier.color !== this.color) {
+          valid = false;
+        }
+      }
+    }
+    for (const key of keys) {
+      section[key].valid = valid;
+    }
+  }
+}
+
+module.exports = {
+  VertexModifier,
+  HexagonModifier,
+  CellModifier,
+  SquareModifier,
+};
