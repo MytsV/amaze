@@ -3,6 +3,7 @@ const Position = require('../src/position');
 const {expect} = require('chai');
 
 describe('Position', () => {
+  // This is a meme...
   describe('new Position(x, y)', () => {
     it('Successfully creates a Position object', () => {
       const [x, y] = [0, 0];
