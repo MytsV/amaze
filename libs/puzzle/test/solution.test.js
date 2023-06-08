@@ -526,5 +526,47 @@ describe('Solution', () => {
         ],
       });
     });
+
+    // Just some more general, complex cases
+    it('Works fine for a 3x4 maze', () => {
+      // Separates into 3 sections
+      checkSections({
+        width: 3,
+        height: 4,
+        vertices: [
+          new Position(0, 0),
+          new Position(0, 1),
+          new Position(0, 2),
+          new Position(1, 2),
+          new Position(1, 1),
+          new Position(1, 0),
+          new Position(2, 0),
+          new Position(2, 1),
+          new Position(3, 1),
+          new Position(3, 2),
+          new Position(2, 2),
+          new Position(2, 3),
+          new Position(1, 3),
+          new Position(1, 4),
+        ],
+        sections: [
+          [new Position(0, 0), new Position(0, 1)],
+          [
+            new Position(0, 2),
+            new Position(0, 3),
+            new Position(1, 2),
+            new Position(1, 1),
+            new Position(2, 1),
+            new Position(1, 0),
+          ],
+          [new Position(2, 0)],
+          [
+            new Position(2, 2),
+            new Position(2, 3),
+            new Position(1, 3),
+          ],
+        ],
+      });
+    });
   });
 });
