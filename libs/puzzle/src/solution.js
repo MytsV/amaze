@@ -182,4 +182,4 @@ const getSections = ({width, height}, path) => {
   return sections;
 };
 
-module.exports = {Solution, edgeOfVertices};
+module.exports = {Solution, edgeOfVertices, edgeOfCell};

@@ -3,7 +3,7 @@ const Position = require('../src/position');
 const {expect} = require('chai');
 const {Maze, EdgeType} = require('../src/maze');
 const {Path} = require('../src/path');
-const {edgeOfVertices, Solution} = require('../src/solution');
+const {edgeOfVertices, edgeOfCell, Solution} = require('../src/solution');
 const {HexagonModifier} = require('../src/modifier');
 
 describe('getEdgePosition(a, b)', () => {
@@ -40,6 +40,40 @@ describe('getEdgePosition(a, b)', () => {
     ];
     for (const test of cases) {
       expect(edgeOfVertices(test.a, test.b)).to.deep.equal(test.res);
+    }
+  });
+});
+
+describe('edgeOfCell(cell, direction)', () => {
+  it('Correctly calculates edge position in any direction', () => {
+    const cases = [
+      // Right
+      {
+        cell: new Position(0, 0),
+        direction: new Position(1, 0),
+        res: new Position(1, 1),
+      },
+      // Up
+      {
+        cell: new Position(0, 2),
+        direction: new Position(0, 1),
+        res: new Position(0, 6),
+      },
+      // Down
+      {
+        cell: new Position(2, 1),
+        direction: new Position(0, -1),
+        res: new Position(2, 2),
+      },
+      // Left
+      {
+        cell: new Position(1, 1),
+        direction: new Position(-1, 0),
+        res: new Position(1, 3),
+      },
+    ];
+    for (const test of cases) {
+      expect(edgeOfCell(test.cell, test.direction)).to.deep.equal(test.res);
     }
   });
 });
