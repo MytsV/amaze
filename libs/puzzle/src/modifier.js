@@ -37,6 +37,10 @@ class CellModifier {
   }
 }
 
+/**
+ * Checks if there are no different color Modifiers in the section.
+ * @extends {VertexModifier}
+ */
 class SquareModifier extends CellModifier {
   static #priority = 1;
 
