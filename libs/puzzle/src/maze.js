@@ -182,4 +182,4 @@ class Maze {
   }
 }
 
-module.exports = {Maze, Position, EdgeType};
+module.exports = {Maze, EdgeType};
