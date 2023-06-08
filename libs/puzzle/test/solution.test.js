@@ -10,7 +10,11 @@ const Position = require('../src/position');
 const {Maze, EdgeType} = require('../src/maze');
 const {Path} = require('../src/path');
 const {edgeOfVertices, edgeOfCell, Solution} = require('../src/solution');
-const {HexagonModifier, SquareModifier} = require('../src/modifier');
+const {
+  HexagonModifier,
+  SquareModifier,
+  StarModifier,
+} = require('../src/modifier');
 
 describe('getEdgePosition(a, b)', () => {
   it('Fails for equal vertices, or if distance > 1', () => {
@@ -621,6 +625,127 @@ describe('Solution', () => {
             new Position(1, 1),
             new Position(1, 2),
             new Position(2, 2),
+          ],
+        ],
+      }, fn);
+    });
+
+    it('Works fine for StarModifier', () => {
+      // Stars of the same color must be at even number
+      checkSolution({
+        width: 3,
+        height: 2,
+        origins: [new Position(1, 1)],
+        endpoints: [new Position(2, 2)],
+        cellModifiers: [
+          [new Position(1, 0), new StarModifier(0)],
+          [new Position(2, 1), new StarModifier(0)],
+        ],
+        invalidPaths: [
+          [
+            new Position(1, 1),
+            new Position(1, 0),
+            new Position(2, 0),
+            new Position(2, 1),
+            new Position(2, 2),
+          ],
+        ],
+        validPaths: [
+          [
+            new Position(1, 1),
+            new Position(1, 2),
+            new Position(2, 2),
+          ],
+        ],
+      }, fn);
+      // Unsolvable
+      checkSolution({
+        width: 3,
+        height: 3,
+        origins: [new Position(0, 0)],
+        endpoints: [new Position(1, 0)],
+        cellModifiers: [
+          [new Position(0, 0), new StarModifier(0)],
+        ],
+        invalidPaths: [
+          [
+            new Position(0, 0),
+            new Position(1, 0),
+          ],
+        ],
+      }, fn);
+    });
+
+    it('Combines StarModifier with SquareModifier', () => {
+      // Stars of the same color must be at even number
+      checkSolution({
+        width: 3,
+        height: 3,
+        origins: [new Position(0, 2)],
+        endpoints: [new Position(3, 1)],
+        cellModifiers: [
+          [new Position(1, 2), new SquareModifier(0)],
+          [new Position(2, 2), new SquareModifier(1)],
+          [new Position(0, 1), new StarModifier(0)],
+        ],
+        invalidPaths: [
+          // Squares separated, but star is alone
+          [
+            new Position(0, 2),
+            new Position(0, 1),
+            new Position(1, 1),
+            new Position(1, 2),
+            new Position(1, 3),
+            new Position(2, 3),
+            new Position(2, 2),
+            new Position(2, 1),
+            new Position(2, 0),
+            new Position(3, 0),
+            new Position(3, 1),
+          ],
+          // Star count is even, but squares conflict
+          [
+            new Position(0, 2),
+            new Position(0, 1),
+            new Position(1, 1),
+            new Position(2, 1),
+            new Position(3, 1),
+          ],
+          // Combine star with wrong color
+          [
+            new Position(0, 2),
+            new Position(0, 3),
+            new Position(1, 3),
+            new Position(1, 2),
+            new Position(2, 2),
+            new Position(2, 3),
+            new Position(3, 3),
+            new Position(3, 2),
+            new Position(3, 1),
+          ],
+        ],
+        validPaths: [
+          [
+            new Position(0, 2),
+            new Position(0, 1),
+            new Position(1, 1),
+            new Position(2, 1),
+            new Position(2, 2),
+            new Position(2, 3),
+            new Position(3, 3),
+            new Position(3, 2),
+            new Position(3, 1),
+          ],
+          [
+            new Position(0, 2),
+            new Position(1, 2),
+            new Position(1, 3),
+            new Position(2, 3),
+            new Position(2, 2),
+            new Position(2, 1),
+            new Position(2, 0),
+            new Position(3, 0),
+            new Position(3, 1),
           ],
         ],
       }, fn);

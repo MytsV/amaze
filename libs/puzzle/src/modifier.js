@@ -71,9 +71,45 @@ class SquareModifier extends CellModifier {
   }
 }
 
+/**
+ * Checks if there is an even number of other "stars" in the section
+ * Can count in other modifiers with color property
+ * @extends {VertexModifier}
+ */
+class StarModifier extends CellModifier {
+  static #priority = 1;
+
+  /**
+   * @param {number} color - any number
+   */
+  constructor(color) {
+    super(StarModifier.#priority);
+    this.color = color;
+  }
+
+  check(section, path) {
+    const keys = [];
+    let starCount = 0;
+    for (const [pos, element] of Object.entries(section)) {
+      if (element === null) continue;
+      const modifier = element.modifier;
+      if (modifier.color === this.color) {
+        starCount++;
+        if (modifier instanceof StarModifier) {
+          keys.push(pos);
+        }
+      }
+    }
+    for (const key of keys) {
+      section[key].valid = starCount % 2 === 0;
+    }
+  }
+}
+
 module.exports = {
   VertexModifier,
   HexagonModifier,
   CellModifier,
   SquareModifier,
+  StarModifier,
 };
