@@ -10,6 +10,7 @@
     "mocha": "^10.2.0"
   },
   "dependencies": {
+    "deep-equal-in-any-order": "^2.0.6",
     "lodash": "^4.17.21"
   }
 }
