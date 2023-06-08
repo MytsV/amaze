@@ -2,7 +2,7 @@ const {describe} = require('mocha');
 const {Maze, EdgeType} = require('../src/maze');
 const Position = require('../src/position');
 const {expect} = require('chai');
-const {HexagonModifier} = require('../src/modifier');
+const {HexagonModifier, SquareModifier} = require('../src/modifier');
 
 describe('Maze', () => {
   const testRange = (fn) => {
@@ -192,6 +192,18 @@ describe('Maze', () => {
       const hexagon = new HexagonModifier();
       maze.updateVertexModifier(pos, hexagon);
       expect(maze.vertexModifiers[pos.toKey()]).to.not.be.undefined;
+    });
+  });
+
+  describe('updateCellModifier({x, y}, modifier)', () => {
+    it('Successfully updates with a cell modifier', () => {
+      const x = 1;
+      const y = 1;
+      const pos = new Position(x, y);
+      const maze = new Maze(x, y);
+      const modifier = new SquareModifier(0);
+      maze.updateCellModifier(pos, modifier);
+      expect(maze.cellModifiers[pos.toKey()]).to.not.be.undefined;
     });
   });
 });

@@ -1,19 +1,25 @@
 const {describe} = require('mocha');
+
+const chai = require('chai');
+const {expect} = chai;
+
+const deepOrderless = require('deep-equal-in-any-order');
+chai.use(deepOrderless);
+
 const Position = require('../src/position');
-const {expect} = require('chai');
 const {Maze, EdgeType} = require('../src/maze');
 const {Path} = require('../src/path');
-const {getEdgePosition, Solution} = require('../src/solution');
-const {HexagonModifier} = require('../src/modifier');
+const {edgeOfVertices, edgeOfCell, Solution} = require('../src/solution');
+const {HexagonModifier, SquareModifier} = require('../src/modifier');
 
 describe('getEdgePosition(a, b)', () => {
   it('Fails for equal vertices, or if distance > 1', () => {
     const pos = new Position(0, 0);
-    expect(() => getEdgePosition(pos, pos)).to.throw();
+    expect(() => edgeOfVertices(pos, pos)).to.throw();
     const farVertexX = new Position(5, 0);
-    expect(() => getEdgePosition(farVertexX, pos)).to.throw();
+    expect(() => edgeOfVertices(farVertexX, pos)).to.throw();
     const farVertexY = new Position(0, 5);
-    expect(() => getEdgePosition(farVertexY, pos)).to.throw();
+    expect(() => edgeOfVertices(farVertexY, pos)).to.throw();
   });
   it('Correctly calculates edge position', () => {
     const cases = [
@@ -39,7 +45,41 @@ describe('getEdgePosition(a, b)', () => {
       },
     ];
     for (const test of cases) {
-      expect(getEdgePosition(test.a, test.b)).to.deep.equal(test.res);
+      expect(edgeOfVertices(test.a, test.b)).to.deep.equal(test.res);
+    }
+  });
+});
+
+describe('edgeOfCell(cell, direction)', () => {
+  it('Correctly calculates edge position in any direction', () => {
+    const cases = [
+      // Right
+      {
+        cell: new Position(0, 0),
+        direction: new Position(1, 0),
+        res: new Position(1, 1),
+      },
+      // Up
+      {
+        cell: new Position(0, 2),
+        direction: new Position(0, 1),
+        res: new Position(0, 6),
+      },
+      // Down
+      {
+        cell: new Position(2, 1),
+        direction: new Position(0, -1),
+        res: new Position(2, 2),
+      },
+      // Left
+      {
+        cell: new Position(1, 1),
+        direction: new Position(-1, 0),
+        res: new Position(1, 3),
+      },
+    ];
+    for (const test of cases) {
+      expect(edgeOfCell(test.cell, test.direction)).to.deep.equal(test.res);
     }
   });
 });
@@ -58,6 +98,9 @@ const checkSolution = (test, fn) => {
   for (const [key, value] of test.vertexModifiers ?? []) {
     maze.updateVertexModifier(key, value);
   }
+  for (const [key, value] of test.cellModifiers ?? []) {
+    maze.updateCellModifier(key, value);
+  }
   for (const vertices of test.validPaths ?? []) {
     const path = new Path();
     path.vertices = vertices;
@@ -74,8 +117,8 @@ const checkSolution = (test, fn) => {
 
 describe('Solution', () => {
   // Here, basically, we test solution algorithm for a maze with no modifiers
-  const fn = (solution) => solution.isPathValid();
   describe('isPathValid()', () => {
+    const fn = (solution) => solution.isPathValid();
     it('Fails with no origins\\endpoints, then passes', () => {
       checkSolution({
         width: 2,
@@ -375,6 +418,209 @@ describe('Solution', () => {
             new Position(2, 2),
             new Position(2, 3),
             new Position(3, 3),
+          ],
+        ],
+      }, fn);
+    });
+  });
+
+  describe('getSections()', () => {
+    const checkSections = (test) => {
+      const maze = new Maze(test.width, test.height);
+      const path = new Path();
+      path.vertices = test.vertices;
+      const solution = new Solution(maze, path);
+      expect(solution.getSections()).deep.equalInAnyOrder(test.sections);
+    };
+
+    it('Works fine for a 2x2 maze', () => {
+      const size = 2;
+      // Separates one cell
+      checkSections({
+        width: size,
+        height: size,
+        vertices: [
+          new Position(0, 0),
+          new Position(0, 1),
+          new Position(1, 1),
+          new Position(1, 0),
+        ],
+        sections: [
+          [new Position(0, 0)],
+          [
+            new Position(0, 1),
+            new Position(1, 0),
+            new Position(1, 1),
+          ],
+        ],
+      });
+      // Doesn't separate cells at all
+      checkSections({
+        width: size,
+        height: size,
+        vertices: [
+          new Position(0, 0),
+          new Position(0, 1),
+        ],
+        sections: [
+          [
+            new Position(0, 0),
+            new Position(0, 1),
+            new Position(1, 0),
+            new Position(1, 1),
+          ],
+        ],
+      });
+      checkSections({
+        width: size,
+        height: size,
+        vertices: [
+          new Position(0, 0),
+          new Position(1, 0),
+          new Position(2, 0),
+        ],
+        sections: [
+          [
+            new Position(0, 0),
+            new Position(0, 1),
+            new Position(1, 0),
+            new Position(1, 1),
+          ],
+        ],
+      });
+      // Separates into two vertically
+      checkSections({
+        width: size,
+        height: size,
+        vertices: [
+          new Position(1, 0),
+          new Position(1, 1),
+          new Position(1, 2),
+        ],
+        sections: [
+          [
+            new Position(0, 0),
+            new Position(0, 1),
+          ],
+          [
+            new Position(1, 0),
+            new Position(1, 1),
+          ],
+        ],
+      });
+      // Separates into two horizontally
+      checkSections({
+        width: size,
+        height: size,
+        vertices: [
+          new Position(0, 1),
+          new Position(1, 1),
+          new Position(2, 1),
+        ],
+        sections: [
+          [
+            new Position(0, 0),
+            new Position(1, 0),
+          ],
+          [
+            new Position(0, 1),
+            new Position(1, 1),
+          ],
+        ],
+      });
+    });
+
+    // Just some more general, complex cases
+    it('Works fine for a 3x4 maze', () => {
+      // Separates into 3 sections
+      checkSections({
+        width: 3,
+        height: 4,
+        vertices: [
+          new Position(0, 0),
+          new Position(0, 1),
+          new Position(0, 2),
+          new Position(1, 2),
+          new Position(1, 1),
+          new Position(1, 0),
+          new Position(2, 0),
+          new Position(2, 1),
+          new Position(3, 1),
+          new Position(3, 2),
+          new Position(2, 2),
+          new Position(2, 3),
+          new Position(1, 3),
+          new Position(1, 4),
+        ],
+        sections: [
+          [new Position(0, 0), new Position(0, 1)],
+          [
+            new Position(0, 2),
+            new Position(0, 3),
+            new Position(1, 2),
+            new Position(1, 1),
+            new Position(2, 1),
+            new Position(1, 0),
+          ],
+          [new Position(2, 0)],
+          [
+            new Position(2, 2),
+            new Position(2, 3),
+            new Position(1, 3),
+          ],
+        ],
+      });
+    });
+  });
+
+  describe('checkCellModifiers()', () => {
+    const fn = (solution) => solution.checkCellModifiers();
+    it('Works fine for SquareModifier', () => {
+      // A simple maze
+      checkSolution({
+        width: 2,
+        height: 2,
+        origins: [new Position(0, 0)],
+        endpoints: [new Position(2, 2)],
+        cellModifiers: [
+          [new Position(0, 0), new SquareModifier(0)],
+          [new Position(0, 1), new SquareModifier(0)],
+          [new Position(1, 1), new SquareModifier(1)],
+        ],
+        invalidPaths: [
+          // Different colors in the same section
+          [
+            new Position(0, 0),
+            new Position(1, 0),
+            new Position(2, 0),
+            new Position(2, 1),
+            new Position(2, 2),
+          ],
+          [
+            new Position(0, 0),
+            new Position(1, 0),
+            new Position(1, 1),
+            new Position(2, 1),
+            new Position(2, 2),
+          ],
+        ],
+        // Colors sorted into different sections
+        validPaths: [
+          [
+            new Position(0, 0),
+            new Position(1, 0),
+            new Position(1, 1),
+            new Position(1, 2),
+            new Position(2, 2),
+          ],
+          [
+            new Position(0, 0),
+            new Position(1, 0),
+            new Position(2, 0),
+            new Position(2, 1),
+            new Position(1, 1),
+            new Position(1, 2),
+            new Position(2, 2),
           ],
         ],
       }, fn);

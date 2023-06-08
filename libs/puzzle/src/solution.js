@@ -7,7 +7,7 @@ const {EdgeType} = require('./maze');
  * @param {Position} b
  * @return {Position}
  */
-const getEdgePosition = (a, b) => {
+const edgeOfVertices = (a, b) => {
   if (a.y === b.y && Math.abs(a.x - b.x) === 1) { // If edge is horizontal
     const y = a.y * 2;
     const x = Math.min(a.x, b.x);
@@ -20,16 +20,47 @@ const getEdgePosition = (a, b) => {
   }
 };
 
+// Calculated by vertices, because this is just more convenient
+/**
+ * Calculates an edge in the given direction from cell
+ * @param {Position} cell
+ * @param {Position} direction
+ * @return {Position}
+ */
+const edgeOfCell = (cell, direction) => {
+  let a; let b;
+  if (direction.x === -1) {
+    a = cell;
+    b = new Position(cell.x, cell.y + 1);
+  } else if (direction.x === 1) {
+    a = new Position(cell.x + 1, cell.y);
+    b = new Position(cell.x + 1, cell.y + 1);
+  } else if (direction.y === -1) {
+    a = cell;
+    b = new Position(cell.x + 1, cell.y);
+  } else if (direction.y === 1) {
+    a = new Position(cell.x, cell.y + 1);
+    b = new Position(cell.x + 1, cell.y + 1);
+  }
+  return edgeOfVertices(a, b);
+};
+
+/**
+ * A checker for path validity on a given maze.
+ */
 class Solution {
   constructor(maze, path) {
     Object.assign(this, {maze, path});
   }
 
+  /**
+   * Determines whether all modifiers and edges have no conflict with the path.
+   * @return {boolean}
+   */
   isValid() {
-    // TODO: implement all steps
     if (!this.isPathValid()) return false;
     if (!this.checkVertexModifiers()) return false;
-    return true;
+    return this.checkCellModifiers();
   }
 
   /*
@@ -39,6 +70,10 @@ class Solution {
    - it doesn't pass through absent or disrupt edges
    - it begins from an origin
    - it ends on an endpoint
+   */
+  /**
+   * Checks whether path is valid outside of modifiers.
+   * @return {boolean}
    */
   isPathValid() {
     if (!this.path.isValid()) return false;
@@ -58,7 +93,7 @@ class Solution {
         return false;
       }
 
-      const edge = getEdgePosition(last, vertex);
+      const edge = edgeOfVertices(last, vertex);
       if (this.maze.edgeTypes[edge.toKey()] !== EdgeType.Solid) {
         return false;
       }
@@ -70,6 +105,10 @@ class Solution {
     return endpoint !== undefined;
   }
 
+  /**
+   * Checks whether vertex modifiers work correctly with the path.
+   * @return {boolean}
+   */
   checkVertexModifiers() {
     const modifiers = this.maze.vertexModifiers;
     for (const [key, modifier] of Object.entries(modifiers)) {
@@ -79,6 +118,101 @@ class Solution {
     }
     return true;
   }
+
+  /**
+   * Checks whether cell modifiers work correctly with the path.
+   * @return {boolean}
+   */
+  checkCellModifiers() {
+    const sectionCells = this.getSections();
+    const sections = [];
+    for (const cells of sectionCells) {
+      const section = {};
+      for (const cell of cells) {
+        const key = cell.toKey();
+        const modifier = this.maze.cellModifiers[key];
+        if (modifier) {
+          section[key] = {
+            modifier,
+            valid: false,
+          };
+        } else {
+          sections[key] = null;
+        }
+      }
+      for (const cell of cells) {
+        const key = cell.toKey();
+        const modifier = this.maze.cellModifiers[key];
+        if (modifier) {
+          modifier.check(section, this.path);
+        }
+      }
+      sections.push(section);
+    }
+    for (const section of sections) {
+      for (const element of Object.values(section)) {
+        if (element.modifier !== null && !element.valid) return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Splits the maze into cell sections by the path.
+   * @return {array}
+   */
+  getSections() {
+    const sections = [];
+    const edges = new Set();
+    const {width, height} = this.maze;
+
+    let lastVertex = this.path.vertices[0];
+    for (let i = 1; i < this.path.vertices.length; i++) {
+      const vertex = this.path.vertices[i];
+      edges.add(edgeOfVertices(lastVertex, vertex).toKey());
+      lastVertex = vertex;
+    }
+
+    const directions = [
+      // Left
+      new Position(-1, 0),
+      // Right
+      new Position(1, 0),
+      // Down
+      new Position(0, -1),
+      // Up
+      new Position(0, 1),
+    ];
+
+    const visited = new Set();
+
+    const dfs = (cell, section) => {
+      if (visited.has(cell.toKey())) return;
+      if (cell.x < 0 || cell.y < 0 || cell.x >= width || cell.y >= height) {
+        return;
+      }
+      visited.add(cell.toKey());
+      section.push(cell);
+
+      directions.forEach((direction) => {
+        const edge = edgeOfCell(cell, direction);
+        if (edges.has(edge.toKey())) return;
+        dfs(new Position(cell.x + direction.x, cell.y + direction.y), section);
+      });
+    };
+
+    for (let i = 0; i < width; i++) {
+      for (let j = 0; j < height; j++) {
+        const section = [];
+        dfs(new Position(i, j), section);
+        if (section.length !== 0) {
+          sections.push(section);
+        }
+      }
+    }
+
+    return sections;
+  }
 }
 
-module.exports = {Solution, getEdgePosition};
+module.exports = {Solution, edgeOfVertices, edgeOfCell};
