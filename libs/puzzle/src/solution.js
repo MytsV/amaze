@@ -81,7 +81,35 @@ class Solution {
 
   checkCellModifiers() {
     const sectionCells = getSections(this.maze, this.path);
-    console.log(sectionCells);
+    const sections = [];
+    for (const cells of sectionCells) {
+      const section = {};
+      for (const cell of cells) {
+        const key = cell.toKey();
+        const modifier = this.maze.cellModifiers[key];
+        if (modifier) {
+          section[key] = {
+            modifier,
+            valid: false,
+          };
+        } else {
+          sections[key] = null;
+        }
+      }
+      for (const cell of cells) {
+        const key = cell.toKey();
+        const modifier = this.maze.cellModifiers[key];
+        if (modifier) {
+          modifier.check(section, this.path);
+        }
+      }
+      sections.push(section);
+    }
+    for (const section of sections) {
+      for (const element of Object.values(section)) {
+        if (element.modifier !== null && !element.valid) return false;
+      }
+    }
     return true;
   }
 }
