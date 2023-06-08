@@ -1,7 +1,7 @@
 const {describe} = require('mocha');
 const {Path} = require('../src/path');
 const {expect} = require('chai');
-const {Position} = require('../src/maze');
+const Position = require('../src/position');
 
 
 describe('Path', () => {
