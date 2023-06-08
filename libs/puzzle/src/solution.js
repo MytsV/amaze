@@ -20,25 +20,32 @@ const edgeOfVertices = (a, b) => {
   }
 };
 
+const dirs = {
+  left: new Position(-1, 0),
+  right: new Position(1, 0),
+  down: new Position(0, -1),
+  up: new Position(0, 1),
+};
+
 // Calculated by vertices, because this is just more convenient
 /**
  * Calculates an edge in the given direction from cell
  * @param {Position} cell
- * @param {Position} direction
+ * @param {Position} dir
  * @return {Position}
  */
-const edgeOfCell = (cell, direction) => {
+const edgeOfCell = (cell, dir) => {
   let a; let b;
-  if (direction.x === -1) {
+  if (dir.equals(dirs.left)) {
     a = cell;
     b = new Position(cell.x, cell.y + 1);
-  } else if (direction.x === 1) {
+  } else if (dir.equals(dirs.right)) {
     a = new Position(cell.x + 1, cell.y);
     b = new Position(cell.x + 1, cell.y + 1);
-  } else if (direction.y === -1) {
+  } else if (dir.equals(dirs.down)) {
     a = cell;
     b = new Position(cell.x + 1, cell.y);
-  } else if (direction.y === 1) {
+  } else if (dir.equals(dirs.up)) {
     a = new Position(cell.x, cell.y + 1);
     b = new Position(cell.x + 1, cell.y + 1);
   }
@@ -173,17 +180,6 @@ class Solution {
       lastVertex = vertex;
     }
 
-    const directions = [
-      // Left
-      new Position(-1, 0),
-      // Right
-      new Position(1, 0),
-      // Down
-      new Position(0, -1),
-      // Up
-      new Position(0, 1),
-    ];
-
     const visited = new Set();
 
     const dfs = (cell, section) => {
@@ -194,10 +190,10 @@ class Solution {
       visited.add(cell.toKey());
       section.push(cell);
 
-      directions.forEach((direction) => {
-        const edge = edgeOfCell(cell, direction);
+      Object.values(dirs).forEach((dir) => {
+        const edge = edgeOfCell(cell, dir);
         if (edges.has(edge.toKey())) return;
-        dfs(new Position(cell.x + direction.x, cell.y + direction.y), section);
+        dfs(new Position(cell.x + dir.x, cell.y + dir.y), section);
       });
     };
 
