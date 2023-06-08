@@ -10,7 +10,11 @@ const Position = require('../src/position');
 const {Maze, EdgeType} = require('../src/maze');
 const {Path} = require('../src/path');
 const {edgeOfVertices, edgeOfCell, Solution} = require('../src/solution');
-const {HexagonModifier, SquareModifier} = require('../src/modifier');
+const {
+  HexagonModifier,
+  SquareModifier,
+  StarModifier,
+} = require('../src/modifier');
 
 describe('getEdgePosition(a, b)', () => {
   it('Fails for equal vertices, or if distance > 1', () => {
@@ -621,6 +625,52 @@ describe('Solution', () => {
             new Position(1, 1),
             new Position(1, 2),
             new Position(2, 2),
+          ],
+        ],
+      }, fn);
+    });
+
+    it('Works fine for StarModifier', () => {
+      // Stars of the same color must be at even number
+      checkSolution({
+        width: 3,
+        height: 2,
+        origins: [new Position(1, 1)],
+        endpoints: [new Position(2, 2)],
+        cellModifiers: [
+          [new Position(1, 0), new StarModifier(0)],
+          [new Position(2, 1), new StarModifier(0)],
+        ],
+        invalidPaths: [
+          [
+            new Position(1, 1),
+            new Position(1, 0),
+            new Position(2, 0),
+            new Position(2, 1),
+            new Position(2, 2),
+          ],
+        ],
+        validPaths: [
+          [
+            new Position(1, 1),
+            new Position(1, 2),
+            new Position(2, 2),
+          ],
+        ],
+      }, fn);
+      // Unsolvable
+      checkSolution({
+        width: 3,
+        height: 3,
+        origins: [new Position(0, 0)],
+        endpoints: [new Position(1, 0)],
+        cellModifiers: [
+          [new Position(0, 0), new StarModifier(0)],
+        ],
+        invalidPaths: [
+          [
+            new Position(0, 0),
+            new Position(1, 0),
           ],
         ],
       }, fn);
