@@ -7,7 +7,7 @@ const {EdgeType} = require('./maze');
  * @param {Position} b
  * @return {Position}
  */
-const getEdgePosition = (a, b) => {
+const edgeOfVertices = (a, b) => {
   if (a.y === b.y && Math.abs(a.x - b.x) === 1) { // If edge is horizontal
     const y = a.y * 2;
     const x = Math.min(a.x, b.x);
@@ -57,7 +57,7 @@ class Solution {
         return false;
       }
 
-      const edge = getEdgePosition(last, vertex);
+      const edge = edgeOfVertices(last, vertex);
       if (this.maze.edgeTypes[edge.toKey()] !== EdgeType.Solid) {
         return false;
       }
@@ -114,7 +114,7 @@ class Solution {
   }
 }
 
-const getEdge = (cell, direction) => {
+const edgeOfCell = (cell, direction) => {
   let a; let b;
   if (direction.x === -1) {
     a = cell;
@@ -129,7 +129,7 @@ const getEdge = (cell, direction) => {
     a = new Position(cell.x, cell.y + 1);
     b = new Position(cell.x + 1, cell.y + 1);
   }
-  return getEdgePosition(a, b);
+  return edgeOfVertices(a, b);
 };
 
 const getSections = ({width, height}, path) => {
@@ -139,7 +139,7 @@ const getSections = ({width, height}, path) => {
   let lastVertex = path.vertices[0];
   for (let i = 1; i < path.vertices.length; i++) {
     const vertex = path.vertices[i];
-    edges.add(getEdgePosition(lastVertex, vertex).toKey());
+    edges.add(edgeOfVertices(lastVertex, vertex).toKey());
     lastVertex = vertex;
   }
 
@@ -163,7 +163,7 @@ const getSections = ({width, height}, path) => {
     section.push(cell);
 
     directions.forEach((direction) => {
-      const edge = getEdge(cell, direction);
+      const edge = edgeOfCell(cell, direction);
       if (edges.has(edge.toKey())) return;
       dfs(new Position(cell.x + direction.x, cell.y + direction.y), section);
     });
@@ -182,4 +182,4 @@ const getSections = ({width, height}, path) => {
   return sections;
 };
 
-module.exports = {Solution, getEdgePosition};
+module.exports = {Solution, edgeOfVertices};

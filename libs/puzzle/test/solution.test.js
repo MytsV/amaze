@@ -3,17 +3,17 @@ const Position = require('../src/position');
 const {expect} = require('chai');
 const {Maze, EdgeType} = require('../src/maze');
 const {Path} = require('../src/path');
-const {getEdgePosition, Solution} = require('../src/solution');
+const {edgeOfVertices, Solution} = require('../src/solution');
 const {HexagonModifier} = require('../src/modifier');
 
 describe('getEdgePosition(a, b)', () => {
   it('Fails for equal vertices, or if distance > 1', () => {
     const pos = new Position(0, 0);
-    expect(() => getEdgePosition(pos, pos)).to.throw();
+    expect(() => edgeOfVertices(pos, pos)).to.throw();
     const farVertexX = new Position(5, 0);
-    expect(() => getEdgePosition(farVertexX, pos)).to.throw();
+    expect(() => edgeOfVertices(farVertexX, pos)).to.throw();
     const farVertexY = new Position(0, 5);
-    expect(() => getEdgePosition(farVertexY, pos)).to.throw();
+    expect(() => edgeOfVertices(farVertexY, pos)).to.throw();
   });
   it('Correctly calculates edge position', () => {
     const cases = [
@@ -39,7 +39,7 @@ describe('getEdgePosition(a, b)', () => {
       },
     ];
     for (const test of cases) {
-      expect(getEdgePosition(test.a, test.b)).to.deep.equal(test.res);
+      expect(edgeOfVertices(test.a, test.b)).to.deep.equal(test.res);
     }
   });
 });
