@@ -1,6 +1,12 @@
 const {describe} = require('mocha');
+
+const chai = require('chai');
+const {expect} = chai;
+
+const deepOrderless = require('deep-equal-in-any-order');
+chai.use(deepOrderless);
+
 const Position = require('../src/position');
-const {expect} = require('chai');
 const {Maze, EdgeType} = require('../src/maze');
 const {Path} = require('../src/path');
 const {edgeOfVertices, edgeOfCell, Solution} = require('../src/solution');
@@ -108,8 +114,8 @@ const checkSolution = (test, fn) => {
 
 describe('Solution', () => {
   // Here, basically, we test solution algorithm for a maze with no modifiers
-  const fn = (solution) => solution.isPathValid();
   describe('isPathValid()', () => {
+    const fn = (solution) => solution.isPathValid();
     it('Fails with no origins\\endpoints, then passes', () => {
       checkSolution({
         width: 2,
@@ -412,6 +418,113 @@ describe('Solution', () => {
           ],
         ],
       }, fn);
+    });
+  });
+
+  describe('getSections()', () => {
+    const checkSections = (test) => {
+      const maze = new Maze(test.width, test.height);
+      const path = new Path();
+      path.vertices = test.vertices;
+      const solution = new Solution(maze, path);
+      expect(solution.getSections()).deep.equalInAnyOrder(test.sections);
+    };
+
+    it('Works fine for a 2x2 maze', () => {
+      const size = 2;
+      // Separates one cell
+      checkSections({
+        width: size,
+        height: size,
+        vertices: [
+          new Position(0, 0),
+          new Position(0, 1),
+          new Position(1, 1),
+          new Position(1, 0),
+        ],
+        sections: [
+          [new Position(0, 0)],
+          [
+            new Position(0, 1),
+            new Position(1, 0),
+            new Position(1, 1),
+          ],
+        ],
+      });
+      // Doesn't separate cells at all
+      checkSections({
+        width: size,
+        height: size,
+        vertices: [
+          new Position(0, 0),
+          new Position(0, 1),
+        ],
+        sections: [
+          [
+            new Position(0, 0),
+            new Position(0, 1),
+            new Position(1, 0),
+            new Position(1, 1),
+          ],
+        ],
+      });
+      checkSections({
+        width: size,
+        height: size,
+        vertices: [
+          new Position(0, 0),
+          new Position(1, 0),
+          new Position(2, 0),
+        ],
+        sections: [
+          [
+            new Position(0, 0),
+            new Position(0, 1),
+            new Position(1, 0),
+            new Position(1, 1),
+          ],
+        ],
+      });
+      // Separates into two vertically
+      checkSections({
+        width: size,
+        height: size,
+        vertices: [
+          new Position(1, 0),
+          new Position(1, 1),
+          new Position(1, 2),
+        ],
+        sections: [
+          [
+            new Position(0, 0),
+            new Position(0, 1),
+          ],
+          [
+            new Position(1, 0),
+            new Position(1, 1),
+          ],
+        ],
+      });
+      // Separates into two horizontally
+      checkSections({
+        width: size,
+        height: size,
+        vertices: [
+          new Position(0, 1),
+          new Position(1, 1),
+          new Position(2, 1),
+        ],
+        sections: [
+          [
+            new Position(0, 0),
+            new Position(1, 0),
+          ],
+          [
+            new Position(0, 1),
+            new Position(1, 1),
+          ],
+        ],
+      });
     });
   });
 });
