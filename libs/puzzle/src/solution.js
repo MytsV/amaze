@@ -26,10 +26,9 @@ class Solution {
   }
 
   isValid() {
-    // TODO: implement all steps
     if (!this.isPathValid()) return false;
     if (!this.checkVertexModifiers()) return false;
-    return true;
+    return this.checkCellModifiers();
   }
 
   /*
@@ -79,6 +78,80 @@ class Solution {
     }
     return true;
   }
+
+  checkCellModifiers() {
+    const sectionCells = getSections(this.maze, this.path);
+    console.log(sectionCells);
+    return true;
+  }
 }
+
+const getEdge = (cell, direction) => {
+  let a; let b;
+  if (direction.x === -1) {
+    a = cell;
+    b = new Position(cell.x, cell.y + 1);
+  } else if (direction.x === 1) {
+    a = new Position(cell.x + 1, cell.y);
+    b = new Position(cell.x + 1, cell.y + 1);
+  } else if (direction.y === -1) {
+    a = cell;
+    b = new Position(cell.x + 1, cell.y);
+  } else if (direction.y === 1) {
+    a = new Position(cell.x, cell.y + 1);
+    b = new Position(cell.x + 1, cell.y + 1);
+  }
+  return getEdgePosition(a, b);
+};
+
+const getSections = ({width, height}, path) => {
+  const sections = [];
+  const edges = new Set();
+
+  let lastVertex = path.vertices[0];
+  for (let i = 1; i < path.vertices.length; i++) {
+    const vertex = path.vertices[i];
+    edges.add(getEdgePosition(lastVertex, vertex).toKey());
+    lastVertex = vertex;
+  }
+
+  const directions = [
+    // Left
+    new Position(-1, 0),
+    // Right
+    new Position(1, 0),
+    // Down
+    new Position(0, -1),
+    // Up
+    new Position(0, 1),
+  ];
+
+  const visited = new Set();
+
+  const dfs = (cell, section) => {
+    if (visited.has(cell.toKey())) return;
+    if (cell.x < 0 || cell.y < 0 || cell.x >= width || cell.y >= width) return;
+    visited.add(cell.toKey());
+    section.push(cell);
+
+    directions.forEach((direction) => {
+      const edge = getEdge(cell, direction);
+      if (edges.has(edge.toKey())) return;
+      dfs(new Position(cell.x + direction.x, cell.y + direction.y), section);
+    });
+  };
+
+  for (let i = 0; i < width; i++) {
+    for (let j = 0; j < height; j++) {
+      const section = [];
+      dfs(new Position(i, j), section);
+      if (section.length !== 0) {
+        sections.push(section);
+      }
+    }
+  }
+
+  return sections;
+};
 
 module.exports = {Solution, getEdgePosition};
