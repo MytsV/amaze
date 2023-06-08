@@ -21,6 +21,12 @@ const edgeOfVertices = (a, b) => {
 };
 
 // Calculated by vertices, because this is just more convenient
+/**
+ * Calculates an edge in the given direction from cell
+ * @param {Position} cell
+ * @param {Position} direction
+ * @return {Position}
+ */
 const edgeOfCell = (cell, direction) => {
   let a; let b;
   if (direction.x === -1) {
@@ -39,11 +45,18 @@ const edgeOfCell = (cell, direction) => {
   return edgeOfVertices(a, b);
 };
 
+/**
+ * A checker for path validity on a given maze.
+ */
 class Solution {
   constructor(maze, path) {
     Object.assign(this, {maze, path});
   }
 
+  /**
+   * Determines whether all modifiers and edges have no conflict with the path.
+   * @return {boolean}
+   */
   isValid() {
     if (!this.isPathValid()) return false;
     if (!this.checkVertexModifiers()) return false;
@@ -57,6 +70,10 @@ class Solution {
    - it doesn't pass through absent or disrupt edges
    - it begins from an origin
    - it ends on an endpoint
+   */
+  /**
+   * Checks whether path is valid outside of modifiers.
+   * @return {boolean}
    */
   isPathValid() {
     if (!this.path.isValid()) return false;
@@ -88,6 +105,10 @@ class Solution {
     return endpoint !== undefined;
   }
 
+  /**
+   * Checks whether vertex modifiers work correctly with the path.
+   * @return {boolean}
+   */
   checkVertexModifiers() {
     const modifiers = this.maze.vertexModifiers;
     for (const [key, modifier] of Object.entries(modifiers)) {
@@ -98,6 +119,10 @@ class Solution {
     return true;
   }
 
+  /**
+   * Checks whether cell modifiers work correctly with the path.
+   * @return {boolean}
+   */
   checkCellModifiers() {
     const sectionCells = this.getSections();
     const sections = [];
@@ -132,6 +157,10 @@ class Solution {
     return true;
   }
 
+  /**
+   * Splits the maze into cell sections by the path.
+   * @return {array}
+   */
   getSections() {
     const sections = [];
     const edges = new Set();
