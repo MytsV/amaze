@@ -131,6 +131,7 @@ class Solution {
    * @return {boolean}
    */
   checkCellModifiers() {
+    // TODO: handle priority
     const sectionCells = this.getSections();
     const sections = [];
     for (const cells of sectionCells) {
@@ -138,14 +139,7 @@ class Solution {
       for (const cell of cells) {
         const key = cell.toKey();
         const modifier = this.maze.cellModifiers[key];
-        if (modifier) {
-          section[key] = {
-            modifier,
-            valid: false,
-          };
-        } else {
-          sections[key] = null;
-        }
+        section[key] = modifier ? {modifier} : null;
       }
       for (const cell of cells) {
         const key = cell.toKey();
@@ -156,9 +150,10 @@ class Solution {
       }
       sections.push(section);
     }
+    // We can't check validity right away, as there may be elimination modifiers
     for (const section of sections) {
       for (const element of Object.values(section)) {
-        if (element.modifier !== null && !element.valid) return false;
+        if (element !== null && !element.valid) return false;
       }
     }
     return true;
