@@ -10,7 +10,7 @@ const Position = require('../src/position');
 const {Maze, EdgeType} = require('../src/maze');
 const {Path} = require('../src/path');
 const {edgeOfVertices, edgeOfCell, Solution} = require('../src/solution');
-const {HexagonModifier} = require('../src/modifier');
+const {HexagonModifier, SquareModifier} = require('../src/modifier');
 
 describe('getEdgePosition(a, b)', () => {
   it('Fails for equal vertices, or if distance > 1', () => {
@@ -97,6 +97,9 @@ const checkSolution = (test, fn) => {
   }
   for (const [key, value] of test.vertexModifiers ?? []) {
     maze.updateVertexModifier(key, value);
+  }
+  for (const [key, value] of test.cellModifiers ?? []) {
+    maze.updateCellModifier(key, value);
   }
   for (const vertices of test.validPaths ?? []) {
     const path = new Path();
@@ -567,6 +570,60 @@ describe('Solution', () => {
           ],
         ],
       });
+    });
+  });
+
+  describe('checkCellModifiers()', () => {
+    const fn = (solution) => solution.checkCellModifiers();
+    it('Works fine for SquareModifier', () => {
+      // A simple maze
+      checkSolution({
+        width: 2,
+        height: 2,
+        origins: [new Position(0, 0)],
+        endpoints: [new Position(2, 2)],
+        cellModifiers: [
+          [new Position(0, 0), new SquareModifier(0)],
+          [new Position(0, 1), new SquareModifier(0)],
+          [new Position(1, 1), new SquareModifier(1)],
+        ],
+        invalidPaths: [
+          // Different colors in the same section
+          [
+            new Position(0, 0),
+            new Position(1, 0),
+            new Position(2, 0),
+            new Position(2, 1),
+            new Position(2, 2),
+          ],
+          [
+            new Position(0, 0),
+            new Position(1, 0),
+            new Position(1, 1),
+            new Position(2, 1),
+            new Position(2, 2),
+          ],
+        ],
+        // Colors sorted into different sections
+        validPaths: [
+          [
+            new Position(0, 0),
+            new Position(1, 0),
+            new Position(1, 1),
+            new Position(1, 2),
+            new Position(2, 2),
+          ],
+          [
+            new Position(0, 0),
+            new Position(1, 0),
+            new Position(2, 0),
+            new Position(2, 1),
+            new Position(1, 1),
+            new Position(1, 2),
+            new Position(2, 2),
+          ],
+        ],
+      }, fn);
     });
   });
 });
