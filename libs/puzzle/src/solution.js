@@ -136,6 +136,10 @@ class Solution {
     const sections = [];
     for (const cells of sectionCells) {
       const section = {};
+      /*
+       We need to wrap modifier, so that its validity can be influenced
+       by other modifiers.
+       */
       for (const cell of cells) {
         const key = cell.toKey();
         const modifier = this.maze.cellModifiers[key];
@@ -168,6 +172,7 @@ class Solution {
     const edges = new Set();
     const {width, height} = this.maze;
 
+    // Save edges, which are crossed by the path
     let lastVertex = this.path.vertices[0];
     for (let i = 1; i < this.path.vertices.length; i++) {
       const vertex = this.path.vertices[i];
@@ -177,6 +182,7 @@ class Solution {
 
     const visited = new Set();
 
+    // Depth-first search of sections
     const dfs = (cell, section) => {
       if (visited.has(cell.toKey())) return;
       if (cell.x < 0 || cell.y < 0 || cell.x >= width || cell.y >= height) {
@@ -185,6 +191,7 @@ class Solution {
       visited.add(cell.toKey());
       section.push(cell);
 
+      // Try to move in every direction
       Object.values(dirs).forEach((dir) => {
         const edge = edgeOfCell(cell, dir);
         if (edges.has(edge.toKey())) return;
